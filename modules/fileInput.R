@@ -1,7 +1,7 @@
  fileInputUI <- function(id) {
    ns <- NS(id)
    
-   wellPanel(
+   tagList(
     fileInput(inputId = ns("file"), label = "File input"),
     div(class = "text-info",
       textOutput(outputId = ns("fileStats"))

@@ -12,10 +12,14 @@ ui <- navbarPage(theme = shinytheme("cosmo"),
   tabPanel(title = "Main",
     fluidRow(
       column(width = 4,
-        analysisSettingsInput(id = "analysisSettings")
+        wellPanel(
+          analysisSettingsInput(id = "analysisSettings")
+        )
       ),
       column(width = 8,
-        fileInputUI(id = "fileInput")
+        wellPanel(
+          fileInputUI(id = "fileInput")
+        )
       )
     )
   ),

@@ -21,7 +21,7 @@ Default <- list(
 analysisSettingsInput <- function(id) {
   ns <- NS(id)
   
-  wellPanel(
+  tagList(
     tags$h2("Analysis options"),
     checkboxInput(inputId = ns("useDefaults"),
       label = "Use default options",
