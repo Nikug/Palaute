@@ -4,6 +4,7 @@ library("shinythemes")
 # Modules
 source("modules/fileInput.R")
 source("modules/analysisSettingsInput.R")
+source("modules/analysisInput.R")
 
 ui <- navbarPage(theme = shinytheme("cosmo"),
   title = "Course Analysis",
@@ -13,7 +14,8 @@ ui <- navbarPage(theme = shinytheme("cosmo"),
     fluidRow(
       column(width = 4,
         wellPanel(
-          analysisSettingsInput(id = "analysisSettings")
+          analysisSettingsInput(id = "analysisSettings"),
+          analysisInput(id = "analysisInput")
         )
       ),
       column(width = 8,

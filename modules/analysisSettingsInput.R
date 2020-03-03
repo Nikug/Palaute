@@ -74,16 +74,9 @@ analysisSettingsInput <- function(id) {
   )
 }
 
-analysisSettings <- function(input, output, session) {
+analysisSettingsFunction <- function(input, output, session) {
   # Init settings
-  settings <- list(
-    topicCount = Default$topicCount,
-    maxIters = Default$maxIters,
-    sampleSize = Default$sampleSize,
-    
-    calculateTopics = Default$calculateTopics,
-    useSampling = Default$useSampling
-  )
+  settings <- reactiveValues()
    
   # Options preview
   output$optionsPreview <- renderText({
@@ -116,7 +109,6 @@ analysisSettings <- function(input, output, session) {
       settings$useSampling <- input$useSampling
     }
   })
-  
   return(settings)
 }
 
