@@ -2,8 +2,10 @@
    ns <- NS(id)
    
    wellPanel(
-     fileInput(inputId = ns("file"), label = "File input"),
-     textOutput(outputId = ns("fileStats"))
+    fileInput(inputId = ns("file"), label = "File input"),
+    div(class = "text-info",
+      textOutput(outputId = ns("fileStats"))
+    )
    )
  }
  

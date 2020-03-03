@@ -8,4 +8,6 @@ options(
 # r suffix for reactive variables
 server <- function(input, output, session) {
   csvr <- callModule(fileInputFunction, id = "fileInput")
+  analysisSettings <- callModule(analysisSettings, id = "analysisSettings")
+  
 }
