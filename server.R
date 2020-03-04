@@ -1,4 +1,7 @@
+# Libraries
 library("shiny")
+library("shinythemes")
+library("dplyr")
 
 # Global options
 options(
@@ -8,6 +11,8 @@ options(
 # r suffix for reactive variables
 server <- function(input, output, session) {
   csvr <- callModule(fileInputFunction, id = "fileInput")
+  callModule(reformatInputFunction, id = "reformatInput", csvr)
+  
   analysisSettings <- callModule(analysisSettingsFunction, id = "analysisSettings")
   callModule(analysisInputFunction, id = "analysisInput", reactive({analysisSettings}))
   

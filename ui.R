@@ -1,10 +1,8 @@
-# Libraries
-library("shinythemes")
-
 # Modules
 source("modules/fileInput.R")
 source("modules/analysisSettingsInput.R")
 source("modules/analysisInput.R")
+source("modules/reformatInput.R")
 
 ui <- navbarPage(theme = shinytheme("cosmo"),
   title = "Course Analysis",
@@ -21,6 +19,9 @@ ui <- navbarPage(theme = shinytheme("cosmo"),
       column(width = 8,
         wellPanel(
           fileInputUI(id = "fileInput")
+        ),
+        wellPanel(
+          reformatInput(id = "reformatInput")
         )
       )
     )

@@ -6,9 +6,9 @@ analysisInput <- function(id) {
   )
 }
 
-analysisInputFunction <- function(input, output, session, settings) {
+analysisInputFunction <- function(input, output, session, settingsr) {
   observeEvent(input$start, {
-    print("Started analysis")
-    print(settings()$sampleSize)
+    settings <- isolate(reactiveValuesToList(settingsr()))
+
   })
 }
