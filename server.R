@@ -11,7 +11,7 @@ options(
 # r suffix for reactive variables
 server <- function(input, output, session) {
   csvr <- callModule(fileInputFunction, id = "fileInput")
-  callModule(reformatInputFunction, id = "reformatInput", csvr)
+  callModule(remapInputFunction, id = "remapInput", csvr)
   
   analysisSettings <- callModule(analysisSettingsFunction, id = "analysisSettings")
   callModule(analysisInputFunction, id = "analysisInput", reactive({analysisSettings}))

@@ -2,7 +2,7 @@
 source("modules/fileInput.R")
 source("modules/analysisSettingsInput.R")
 source("modules/analysisInput.R")
-source("modules/reformatInput.R")
+source("modules/remapInput.R")
 
 ui <- navbarPage(theme = shinytheme("cosmo"),
   title = "Course Analysis",
@@ -21,7 +21,7 @@ ui <- navbarPage(theme = shinytheme("cosmo"),
           fileInputUI(id = "fileInput")
         ),
         wellPanel(
-          reformatInput(id = "reformatInput")
+          remapInput(id = "remapInput")
         )
       )
     )
