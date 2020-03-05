@@ -159,16 +159,46 @@ remapInputFunction <- function(input, output, session, csv) {
     data <- datar()
     mappings <- remapInputsr()
     
-    docs <- c()
     
-    for(i in 1:length(mappings)) {
-      if(mappings[i] == Types$doc) {
-        docs <- c(docs, as.character(data[, i]))
+    # Create dataframe names
+    dfnames <- c("documents", "topicCovariates")
+    pres <- sum(mappings == Types$pre)
+    dfnames <- c(dfnames, sapply(1:pres, function(i) paste0("PrevalenceCovariates", i)))
+    
+    mappedData <- data.frame(matrix(ncol = length(dfnames), nrow = 0))
+    colnames(mappedData) <- dfnames
+    
+    # Create the new data frame
+    for(r in 1:nrow(data)) {
+      dataRow <- data[r, ]
+      docs <- c()
+      preCovs <- c()
+      topCovs <- c()
+      print(length(dataRow))
+      
+      # Issue with appending rows with empty values
+      # I guess, I'm not sure
+      
+      for(i in 1:length(mappings)) {
+        if(mappings[i] == Types$doc) {
+          docs <- c(docs, dataRow[i])
+        } else if(mappings[i] == Types$pre) {
+          preCovs <- c(preCovs, dataRow[i])
+        } else if(mappings[i] == Types$pre) {
+          topCovs <- c(topCovs, dataRow[i])
+        }
       }
+      
+      print(docs)
+      
+      for(d in docs) {
+        newRow <- as.list(c(docs[d], ifelse(length(topCovs) == 0, 0, topCovs), preCovs))
+        names(newRow) <- dfnames
+        mappedData <- rbind(mappedData, newRow)
+      }
+      break
     }
-    
-    df <- data.frame(docs)
-    print(str(df))
+    #print(str(mappedData))
     
   })
   
