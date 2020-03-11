@@ -9,7 +9,9 @@ DefaultRemap <- list(
   
   minInputRows = 2,
   maxInputRows = 1000000,
-  factorDetectThreshold = 7
+  factorDetectThreshold = 7,
+  
+  prevalenceCovariates = 2
 )
 
 Types <- list(
@@ -51,8 +53,10 @@ remapInput <- function(id) {
     ),
     
     tags$hr(),
-    tags$h3("Mapped file"),
     fluidRow(
+      column(width = 3,
+        tags$h3("Mapped file")
+      ),
       column(width = 3,
       numericInput(inputId = ns("outputRows"), label = "Show rows",
                    min = DefaultRemap$minInputRows,
@@ -109,7 +113,7 @@ remapInputFunction <- function(input, output, session, csv) {
     inputs <- lapply(inputNames, function(x) paste0(inputs, input[[x]]))
   })
   
-  # Remap
+  # Create remapping components
   observeEvent(remapInputNamesr(), {
     data <- datar()
     
@@ -117,6 +121,8 @@ remapInputFunction <- function(input, output, session, csv) {
     
     names <- colnames(data)
     ids <- remapInputNamesr()
+    preCovCounter <- 0
+    
     for(i in 1:length(names)) {
       uniques <- unique(data[, i])
       type = Types$doc
@@ -125,14 +131,22 @@ remapInputFunction <- function(input, output, session, csv) {
       # Guess the data type
       if(length(uniques) <= 1) {
         type = Types$don
-      } else if(length(uniques) <= DefaultRemap$factorDetectThreshold) {
+      } else if(length(uniques) <= DefaultRemap$factorDetectThreshold &
+                preCovCounter < DefaultRemap$prevalenceCovariates) 
+      {
         type = Types$pre
+        preCovCounter <- preCovCounter + 1
       } else {
         type = Types$doc
       }
       
-      if(is.numeric(data[, i]) & type == Types$doc) {
-        type = Types$pre
+      if(is.numeric(data[, i]) &type == Types$doc) {
+        if(preCovCounter < DefaultRemap$prevalenceCovariates) {
+          type = Types$pre
+          preCovCounter <- preCovCounter + 1
+        } else {
+          type = Types$don
+        }
       }
       
       # Generate UI component
@@ -148,14 +162,17 @@ remapInputFunction <- function(input, output, session, csv) {
       # Insert UI component
       insertUI(selector = "#remapControls", where = "beforeEnd", ui = 
         column(width = 3,
-          ui
+          ui,
+          div(class = "small",
+            tags$p(paste("Data type:", ifelse(is.numeric(data[, i]), "Numeric", "Text")))
+          )
         )
       )
     }
   })
   
   # Mapped file
-  output$output <- renderTable({
+  remapData <- reactive({
     mappings <- remapInputsr()
     data <- datar()
     
@@ -177,6 +194,10 @@ remapInputFunction <- function(input, output, session, csv) {
     
     mappedMatrix <- matrix(nrow = (nrow(data) * documents), ncol = length(dfnames))
     
+    validate(
+      need(nrow(mappedMatrix) > 0, message = "There is no data")
+    )
+    
     # Create the new data frame
     iter <- 1
     for(r in 1:nrow(data)) {
@@ -188,6 +209,10 @@ remapInputFunction <- function(input, output, session, csv) {
       for(i in 1:length(mappings)) {
         if(mappings[i] == Types$doc) {
           doc <- as.character(dataRow[[i]])
+          if(is.na(doc)) {
+            next
+          }
+          
           if(nchar(doc) > 0) {
             docs <- c(docs, doc)
           } else {
@@ -209,9 +234,12 @@ remapInputFunction <- function(input, output, session, csv) {
     
     mappedData <- as.data.frame(mappedMatrix[1:iter, ])
     colnames(mappedData) <- dfnames
-    
-    # The output table
-    firstRows <- mappedData[1:input$outputRows,]
+    mappedData
+  })
+  
+  # The output table
+  output$output <- renderTable({
+    firstRows <- remapData()[1:input$outputRows,]
     firstRows
   })
 }
