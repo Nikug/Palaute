@@ -187,10 +187,17 @@ remapInputFunction <- function(input, output, session, csv) {
     
     
     # Create dataframe names
-    dfnames <- c("documents", "topicCovariates")
+    dfnames <- c("documents")
     pres <- sum(mappings == Types$pre)
+    tops <- sum(mappings == Types$top)
     documents <- sum(mappings == Types$doc)
-    dfnames <- c(dfnames, sapply(1:pres, function(i) paste0("prevalenceCovariates", i)))
+    
+    if(tops > 0) {
+      dfnames <- c(dfnames, sapply(1:tops, function(i) paste0("topicCovariates", i)))
+    }
+    if(pres > 0) {
+      dfnames <- c(dfnames, sapply(1:pres, function(i) paste0("prevalenceCovariates", i)))
+    }
     
     mappedMatrix <- matrix(nrow = (nrow(data) * documents), ncol = length(dfnames))
     
@@ -226,20 +233,21 @@ remapInputFunction <- function(input, output, session, csv) {
       }
       
       for(d in docs) {
-        newRow <- c(d, ifelse(length(topCovs) == 0, 0, topCovs), preCovs)
+        newRow <- c(d, topCovs, preCovs)
         mappedMatrix[iter, ] <- newRow
         iter <- iter + 1
       }
     }
     
     mappedData <- as.data.frame(mappedMatrix[1:iter, ])
+    print(dfnames)
     colnames(mappedData) <- dfnames
     mappedData
   })
   
   # The output table
   output$output <- renderTable({
-    firstRows <- remapData()[1:input$outputRows,]
+    firstRows <- remapData()[1:input$outputRows, , drop = FALSE]
     firstRows
   })
 }
