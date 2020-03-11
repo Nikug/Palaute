@@ -1,6 +1,5 @@
 # Libraries
 library("shiny")
-library("shinythemes")
 library("dplyr")
 
 # Global options

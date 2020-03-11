@@ -155,51 +155,63 @@ remapInputFunction <- function(input, output, session, csv) {
   })
   
   # Mapped file
-  observeEvent(remapInputsr(), ignoreInit = TRUE, {
-    data <- datar()
+  output$output <- renderTable({
     mappings <- remapInputsr()
+    data <- datar()
+    
+    validate(
+      need(input$outputRows >= DefaultRemap$minInputRows,
+           message = paste("Need atleast", DefaultRemap$minInputRows,"rows")),
+      need(length(mappings) > 0,
+           message = "Mappings have not loaded yet"),
+      need(nrow(data) > 0,
+           message = "There is no data")
+    )
     
     
     # Create dataframe names
     dfnames <- c("documents", "topicCovariates")
     pres <- sum(mappings == Types$pre)
-    dfnames <- c(dfnames, sapply(1:pres, function(i) paste0("PrevalenceCovariates", i)))
+    documents <- sum(mappings == Types$doc)
+    dfnames <- c(dfnames, sapply(1:pres, function(i) paste0("prevalenceCovariates", i)))
     
-    mappedData <- data.frame(matrix(ncol = length(dfnames), nrow = 0))
-    colnames(mappedData) <- dfnames
+    mappedMatrix <- matrix(nrow = (nrow(data) * documents), ncol = length(dfnames))
     
     # Create the new data frame
+    iter <- 1
     for(r in 1:nrow(data)) {
       dataRow <- data[r, ]
       docs <- c()
       preCovs <- c()
       topCovs <- c()
-      print(length(dataRow))
-      
-      # Issue with appending rows with empty values
-      # I guess, I'm not sure
       
       for(i in 1:length(mappings)) {
         if(mappings[i] == Types$doc) {
-          docs <- c(docs, dataRow[i])
+          doc <- as.character(dataRow[[i]])
+          if(nchar(doc) > 0) {
+            docs <- c(docs, doc)
+          } else {
+            next
+          }
         } else if(mappings[i] == Types$pre) {
-          preCovs <- c(preCovs, dataRow[i])
-        } else if(mappings[i] == Types$pre) {
-          topCovs <- c(topCovs, dataRow[i])
+          preCovs <- c(preCovs, dataRow[[i]])
+        } else if(mappings[i] == Types$top) {
+          topCovs <- c(topCovs, dataRow[[i]])
         }
       }
       
-      print(docs)
-      
       for(d in docs) {
-        newRow <- as.list(c(docs[d], ifelse(length(topCovs) == 0, 0, topCovs), preCovs))
-        names(newRow) <- dfnames
-        mappedData <- rbind(mappedData, newRow)
+        newRow <- c(d, ifelse(length(topCovs) == 0, 0, topCovs), preCovs)
+        mappedMatrix[iter, ] <- newRow
+        iter <- iter + 1
       }
-      break
     }
-    #print(str(mappedData))
     
+    mappedData <- as.data.frame(mappedMatrix[1:iter, ])
+    colnames(mappedData) <- dfnames
+    
+    # The output table
+    firstRows <- mappedData[1:input$outputRows,]
+    firstRows
   })
-  
 }

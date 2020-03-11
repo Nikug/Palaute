@@ -1,3 +1,6 @@
+# Libraries
+library("shinythemes")
+
 # Modules
 source("modules/fileInput.R")
 source("modules/analysisSettingsInput.R")
