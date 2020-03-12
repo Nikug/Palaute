@@ -4,7 +4,11 @@
    tagList(
     fluidRow(
       column(width = 6,
-        fileInput(inputId = ns("file"), label = "File input")
+        fileInput(inputId = ns("file"), label = "File input", accept = c(
+          "text/csv",
+          "text/comma-separated-values, text/plain",
+          ".csv"
+        ))
       ),
       column(width = 3,
         textInput(inputId = ns("delimiter"), label = "CSV delimiter", value = ";")
@@ -21,8 +25,8 @@
  
  fileInputFunction <- function(input, output, session) {
    file <- reactive({
-     validate(need(input$file, message = FALSE),
-              need(input$delimiter, message = FALSE))
+     validate(need(input$file, message = "There is no data"),
+              need(input$delimiter, message = "No delimiter"))
      input$file
    })
    
@@ -31,11 +35,19 @@
    })
    
    csv <- reactive({
-     read.csv(file()$datapath,
-              sep = substring(input$delimiter, 1, 1),
-              header = input$header,
-              encoding = "UTF-8",
-              check.names = FALSE)
+     tryCatch({
+       read.csv(file()$datapath,
+                sep = substring(input$delimiter, 1, 1),
+                header = input$header,
+                encoding = "UTF-8",
+                check.names = FALSE)
+     },
+     error = function(e) {
+       validate("File is in incorrect format")
+     },
+     warning = function(w) {
+       validate("There was an issue with reading the file")
+     })
    })
    
    observeEvent(csv(), {

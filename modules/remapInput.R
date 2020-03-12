@@ -61,8 +61,16 @@ remapInput <- function(id) {
       )
     ),
     conditionalPanel(condition = "input.hideControls == false", ns = ns,
+      
       fluidRow(
-        div(id = "remapControls")
+        column(width = 6,
+          tags$h3("Text"),
+          div(id = "remapTextControls")
+        ),
+        column(width = 6,
+          tags$h3("Numeric"),
+          div(id = "remapNumControls")
+        )
       )
     ),
     
@@ -134,9 +142,10 @@ remapInputFunction <- function(input, output, session, csv) {
   
   # Create remapping components
   observeEvent(remapInputNamesr(), {
-    data <- datar()
+    removeUI(selector = "#remapNumControls > ", multiple = TRUE)
+    removeUI(selector = "#remapTextControls > ", multiple = TRUE)
     
-    removeUI(selector = "#remapControls > ", multiple = TRUE)
+    data <- datar()
     
     names <- colnames(data)
     ids <- remapInputNamesr()
@@ -169,8 +178,9 @@ remapInputFunction <- function(input, output, session, csv) {
       }
       
       # Generate UI component
+      label <- substring(names[i], 1, input$truncateHeader)
       ui <- selectInput(inputId = session$ns(inputName),
-                        label = substring(names[i], 1, input$truncateHeader),
+                        label = NULL,
                         c("Document" = Types$doc,
                           "Prevalence covariate" = Types$pre,
                           "Topic covariate" = Types$top,
@@ -179,11 +189,14 @@ remapInputFunction <- function(input, output, session, csv) {
       )
       
       # Insert UI component
-      insertUI(selector = "#remapControls", where = "beforeEnd", ui = 
-        column(width = 3,
-          ui,
-          div(class = "small",
-            tags$p(paste("Data type:", ifelse(is.numeric(data[, i]), "Numeric", "Text")))
+      insertUI(selector = ifelse(is.numeric(data[, i]), "#remapNumControls", "#remapTextControls"),
+               where = "beforeEnd", ui = 
+        fluidRow(
+          column(width = 6,
+            tags$label(label)
+          ),
+          column(width = 6,
+            ui
           )
         )
       )
@@ -257,8 +270,11 @@ remapInputFunction <- function(input, output, session, csv) {
         iter <- iter + 1
       }
     }
-    
-    mappedData <- as.data.frame(mappedMatrix[1:iter, ])
+    if(ncol(mappedMatrix) == 1) {
+      mappedData <- as.data.frame(mappedMatrix[1:iter])
+    } else {
+      mappedData <- as.data.frame(mappedMatrix[1:iter, ])
+    }
     colnames(mappedData) <- dfnames
     mappedData
   })
