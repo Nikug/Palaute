@@ -70,11 +70,16 @@ analysisSettingsInput <- function(id) {
     div(class = "text-info",
       verbatimTextOutput(outputId = ns("optionsPreview"))
     ),
+    tags$hr(),
+    tags$h3("Data preview"),
+    div(class = "text-info",
+        verbatimTextOutput(outputId = ns("dataPreview"))
+    ),
     tags$hr()
   )
 }
 
-analysisSettingsFunction <- function(input, output, session) {
+analysisSettingsFunction <- function(input, output, session, datar) {
   # Init settings
   settings <- reactiveValues()
    
@@ -109,6 +114,20 @@ analysisSettingsFunction <- function(input, output, session) {
       settings$useSampling <- input$useSampling
     }
   })
+  
+  output$dataPreview <- renderText({
+    data <- datar()
+    rows <- nrow(data)
+    cols <- ncol(data)
+    
+    if(rows == 0 | cols == 0){
+      text <- paste("No data")
+    } else {
+      text <- paste("Data is ready\nRows:", rows, "\nColumns:", cols)
+    }
+    text
+  })
+  
   return(settings)
 }
 

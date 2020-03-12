@@ -26,8 +26,11 @@ remapInput <- function(id) {
   
   tagList(
     fluidRow(
-      column(width = 3,
+      column(width = 2,
         tags$h3("Input file")
+      ),
+      column(width = 2,
+        checkboxInput(inputId = ns("hideInput"), label = "Hide", value = FALSE)
       ),
       column(width = 3,
         numericInput(inputId = ns("inputRows"), label = "Show rows",
@@ -42,20 +45,34 @@ remapInput <- function(id) {
                           value = DefaultRemap$truncateHeader)
       )
     ),
-    div(class = "small, table-responsive",
-      tableOutput(outputId = ns("input"))
-    ),
-    
-    tags$hr(),
-    tags$h3("Remap"),
-    fluidRow(
-      div(id = "remapControls")
+    conditionalPanel(condition = "input.hideInput == false", ns = ns,
+      div(class = "small, table-responsive",
+        tableOutput(outputId = ns("input"))
+      )
     ),
     
     tags$hr(),
     fluidRow(
-      column(width = 3,
+      column(width = 2,
+        tags$h3("Remap")
+      ),
+      column(width = 2,
+        checkboxInput(inputId = ns("hideControls"), label =  "Hide", value = FALSE)       
+      )
+    ),
+    conditionalPanel(condition = "input.hideControls == false", ns = ns,
+      fluidRow(
+        div(id = "remapControls")
+      )
+    ),
+    
+    tags$hr(),
+    fluidRow(
+      column(width = 2,
         tags$h3("Mapped file")
+      ),
+      column(width = 2,
+        checkboxInput(inputId = ns("hideOutput"), label = "Hide", value = FALSE)       
       ),
       column(width = 3,
       numericInput(inputId = ns("outputRows"), label = "Show rows",
@@ -64,8 +81,10 @@ remapInput <- function(id) {
                    value = DefaultRemap$inputRows)
       )
     ),
-    div(class = "small, table-responsive",
-        tableOutput(outputId = ns("output"))
+    conditionalPanel(condition = "input.hideOutput == false", ns = ns,
+      div(class = "small, table-responsive",
+          tableOutput(outputId = ns("output"))
+      )
     )
   )
 }
@@ -240,7 +259,6 @@ remapInputFunction <- function(input, output, session, csv) {
     }
     
     mappedData <- as.data.frame(mappedMatrix[1:iter, ])
-    print(dfnames)
     colnames(mappedData) <- dfnames
     mappedData
   })
@@ -250,4 +268,8 @@ remapInputFunction <- function(input, output, session, csv) {
     firstRows <- remapData()[1:input$outputRows, , drop = FALSE]
     firstRows
   })
+  
+  # Return value
+  return(remapData)
+
 }

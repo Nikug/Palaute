@@ -6,9 +6,14 @@ analysisInput <- function(id) {
   )
 }
 
-analysisInputFunction <- function(input, output, session, settingsr) {
+analysisInputFunction <- function(input, output, session, settingsr, datar) {
   observeEvent(input$start, {
+    validate(
+      need(settingsr(), message = "There are no settings"),
+      need(datar(), message = "There is no data")
+    )
     settings <- isolate(reactiveValuesToList(settingsr()))
+    data <- datar()
 
   })
 }
