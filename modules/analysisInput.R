@@ -1,3 +1,5 @@
+
+
 analysisInput <- function(id) {
   ns <- NS(id)
   
@@ -12,8 +14,20 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
       need(settingsr(), message = "There are no settings"),
       need(datar(), message = "There is no data")
     )
+    
     settings <- isolate(reactiveValuesToList(settingsr()))
-    data <- datar()
-
+    data <- isolate(datar())
+    print("Started analysis")
+    
+    analysisData <- NULL
+    if(settings$useSampling) {
+      analysisData <- sampleDocuments(data, settings$sampleSize)
+    } else {
+      analysisData <- data
+    }
+    
+    processedAnalysisData <- preprocessDocuments(analysisData, settings)
+    model <- topicModelAnalysis(processedAnalysisData, settings)
   })
+
 }

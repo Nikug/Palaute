@@ -7,6 +7,9 @@ source("modules/analysisSettingsInput.R")
 source("modules/analysisInput.R")
 source("modules/remapInput.R")
 
+# Scripts
+source("scripts/analysis.R")
+
 ui <- navbarPage(theme = shinytheme("cosmo"),
   title = "Course Analysis",
   inverse = TRUE,

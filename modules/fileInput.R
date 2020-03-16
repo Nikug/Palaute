@@ -35,6 +35,9 @@
    })
    
    csv <- reactive({
+     validate(
+       need(input$file, message = "There is no file")
+       )
      tryCatch({
        read.csv(file()$datapath,
                 sep = substring(input$delimiter, 1, 1),
@@ -47,6 +50,7 @@
      },
      warning = function(w) {
        validate("There was an issue with reading the file")
+       # Add removing remapping elements here
      })
    })
    

@@ -1,6 +1,8 @@
 # Libraries
 library("shiny")
 library("dplyr")
+library("stm")
+library("syuzhet")
 
 # Global options
 options(

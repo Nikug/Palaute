@@ -1,5 +1,12 @@
 # Consts
+Languages <- list(
+  English = "en",
+  Finnish = "fi"
+)
+
 Default <- list(
+  language = Languages$fi,
+  
   topicCount = 6,
   topicCountMin = 2,
   topicCountMax = 100,
@@ -17,7 +24,6 @@ Default <- list(
   useDefaults = TRUE
 )
 
-
 analysisSettingsInput <- function(id) {
   ns <- NS(id)
   
@@ -26,6 +32,10 @@ analysisSettingsInput <- function(id) {
     checkboxInput(inputId = ns("useDefaults"),
       label = "Use default options",
       value = Default$useDefaults),
+    
+    selectInput(inputId = ns("language"), label = "Data language",
+                c("Finnish" = Languages$Finnish,
+                  "English" = Languages$English)),
     
     conditionalPanel(condition = "input.useDefaults == false", ns = ns,
       
@@ -86,11 +96,13 @@ analysisSettingsFunction <- function(input, output, session, datar) {
   # Options preview
   output$optionsPreview <- renderText({
     if(input$useDefaults) {
-      text <- paste("Topic count: ", ifelse(Default$calculateTopics, "calculate", Default$topicCount),
+      text <- paste("Data language: ", names(Languages[Languages == input$language]),
+                    "\nTopic count: ", ifelse(Default$calculateTopics, "calculate", Default$topicCount),
                     "\nSample: ", ifelse(Default$useSampling, Default$sampleSize, "all"),
                     "\nMax iterations: ", Default$maxIters)
     } else {
-      text <- paste("Topic count: ", ifelse(input$calculateTopics, "calculate", input$topicCount),
+      text <- paste("Data language: ", names(Languages[Languages == input$language]),
+                    "\nTopic count: ", ifelse(input$calculateTopics, "calculate", input$topicCount),
                     "\nSample: ", ifelse(input$useSampling, input$sampleSize, "all"),
                     "\nMax iterations: ", input$maxIterations)
     }
@@ -105,6 +117,8 @@ analysisSettingsFunction <- function(input, output, session, datar) {
       
       settings$calculateTopics <- Default$calculateTopics
       settings$useSampling <- Default$useSampling
+      
+      settings$language <- input$language
     } else {
       settings$topicCount <- clamp(input$topicCount, Default$topicCountMin, Default$topicCountMax)
       settings$maxIters <- clamp(input$maxIterations, Default$maxItersMin, Default$maxItersMax)
@@ -112,6 +126,8 @@ analysisSettingsFunction <- function(input, output, session, datar) {
       
       settings$calculateTopics <- input$calculateTopics
       settings$useSampling <- input$useSampling
+      
+      settings$language <- input$language
     }
   })
   
