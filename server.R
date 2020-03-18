@@ -15,6 +15,6 @@ server <- function(input, output, session) {
   datar <- callModule(remapInputFunction, id = "remapInput", csvr)
   
   analysisSettings <- callModule(analysisSettingsFunction, id = "analysisSettings", datar)
-  callModule(analysisInputFunction, id = "analysisInput", reactive({analysisSettings}), datar)
+  analysisResults <- callModule(analysisInputFunction, id = "analysisInput", reactive({analysisSettings}), datar)
   
 }
