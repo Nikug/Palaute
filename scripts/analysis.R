@@ -1,10 +1,5 @@
-performAnalysis <- function(data, settings) {
-  # Sample
-  # Preprocess
-  # Topic modeling
-  # Sentiment analysis
-  # Topic specific sentiment analysis
-}
+# Consts
+Verbose = TRUE
 
 sampleDocuments <- function(data, sampleSize) {
   dataSample <- sample_n(data, sampleSize)
@@ -43,7 +38,7 @@ topicModelAnalysis <- function(data, settings) {
                seed = 0,
                reportevery = 100,
                data = data$meta,
-               verbose = TRUE,
+               verbose = Verbose,
                prevalence = prevalenceCovariateFormula,
                content = topicCovariateFormula
   )

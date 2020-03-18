@@ -270,14 +270,9 @@ remapInputFunction <- function(input, output, session, csv) {
         iter <- iter + 1
       }
     }
-    # Replace documents with NA covariates
-    mappedMatrix <- mappedMatrix[complete.cases(mappedMatrix), ]
     
-    if(ncol(mappedMatrix) == 1) {
-      mappedData <- as.data.frame(mappedMatrix[1:nrow(mappedMatrix)])
-    } else {
-      mappedData <- as.data.frame(mappedMatrix[1:nrow(mappedMatrix), ])
-    }
+    mappedMatrix <- mappedMatrix[complete.cases(mappedMatrix), , drop = FALSE]
+    mappedData <- as.data.frame(mappedMatrix[1:nrow(mappedMatrix), ])
     colnames(mappedData) <- dfnames
     mappedData
   })

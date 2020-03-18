@@ -7,6 +7,8 @@ analysisInput <- function(id) {
 }
 
 analysisInputFunction <- function(input, output, session, settingsr, datar) {
+  analysis <- reactiveValues(results = NULL)
+  
   # Process data
   analysisDatar <- reactive({
     validate(
@@ -14,9 +16,8 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
       need(datar(), message = "Data preprocess: There is no data")
     )
     
-    settings <- isolate(reactiveValuesToList(settingsr()))
-    data <- isolate(datar())
-    print("Started analysis")
+    settings <- reactiveValuesToList(settingsr())
+    data <- datar()
     
     analysisData <- NULL
     if(settings$useSampling) {
@@ -73,14 +74,22 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
     topicSentiments
   })
   
-  analysisResultsr <- eventReactive(input$start, {
+  observeEvent(input$start, {
+    print("Started analysis")
+    settings <- settingsr()
     model <- modelr()
     sentimentSummary <- sentimentSummaryr()
     topicSentiments <- topicSentimentsr()
+    analysisData <- analysisDatar()
+
+    analysisResults <- list("model" = model, 
+                            "sentiment" = sentimentSummary,
+                            "topicSentiment" = topicSentiments,
+                            "data" = analysisData)
     
-    analysisResults <- data.frame(model, sentimentSummary, topicSentiments)
-    colnames(analysisResults) <- c("model", "sentiment", "topicSentiment")
-    
-    analysisResults
+    analysis$results <- analysisResults
+    print("Analysis completed!")
   })
+  
+  return(analysis)
 }
