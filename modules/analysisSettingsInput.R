@@ -120,6 +120,11 @@ analysisSettingsFunction <- function(input, output, session, datar) {
       
       settings$language <- input$language
     } else {
+      validate(
+        need(is.numeric(input$topicCount), message = "Topic count is not numeric"),
+        need(is.numeric(input$maxIterations), message = "Max iterations is not numeric"),
+        need(is.numeric(input$sampleSize), message = "Sample size is not numeric")
+        )
       settings$topicCount <- clamp(input$topicCount, Default$topicCountMin, Default$topicCountMax)
       settings$maxIters <- clamp(input$maxIterations, Default$maxItersMin, Default$maxItersMax)
       settings$sampleSize <- clamp(input$sampleSize, Default$sampleSizeMin, Default$sampleSizeMax)

@@ -4,6 +4,11 @@ library("dplyr")
 library("stm")
 library("syuzhet")
 library("LDAvis")
+library("ggplot2")
+library("proxy")
+
+# Remove these later
+library("Rtsne")
 
 # Global options
 options(

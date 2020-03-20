@@ -84,3 +84,17 @@ topicDocuments <- function(model, data, settings) {
 syuzhetLanguage <- function(language) {
   return (tolower(names(Languages[Languages == language])))
 }
+
+topicDistances <- function(topicTerms) {
+  # Rewritten from LDA vis
+  distances <- proxy::dist(x = topicTerms, method = function(x, y) {
+    m <- 0.5 * (x + y)
+    lhs <- ifelse(x == 0, 0, x * (log(x) - log(m)))
+    rhs <- ifelse(y == 0, 0, y * (log(y) - log(m)))
+    return(0.5 * sum(lhs) + 0.5 * sum(rhs))
+  })
+  
+  reducedDimensionsDistances <- cmdscale(distances, k = 2)
+  return(data.frame("x" = reducedDimensionsDistances[, 1],
+                    "y" = reducedDimensionsDistances[, 2]))
+}
