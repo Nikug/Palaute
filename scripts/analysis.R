@@ -93,6 +93,11 @@ topicDistances <- function(topicTerms) {
     rhs <- ifelse(y == 0, 0, y * (log(y) - log(m)))
     return(0.5 * sum(lhs) + 0.5 * sum(rhs))
   })
+  print(distances)
+  if(length(distances) < 2) {
+    return(data.frame("x" = c(distances / 2, -distances / 2),
+                      "y" = c(0, 0)))
+  }
   
   reducedDimensionsDistances <- cmdscale(distances, k = 2)
   return(data.frame("x" = reducedDimensionsDistances[, 1],

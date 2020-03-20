@@ -23,10 +23,10 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
     results <- resultsr()
     model <- results$model
     topicCount <- model$settings$dim$K
-    
+    perplexity <- floor(topicCount / 3 - 1)
     reducedDimensions <- Rtsne(model$theta, k = 2,
                                initial_dims = topicCount,
-                               perplexity = floor(topicCount / 3 - 1),
+                               perplexity = ifelse(perplexity < 1, 1, perplexity),
                                max_iter = 500,
                                verbose = TRUE,
                                check_duplicates = FALSE)
@@ -104,21 +104,23 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
         color = sentiment,
         alpha = 0.7
       )) + 
-      scale_size(range = c(5, 40), limits = c(0, max(distanceMatrix$size))) + 
+      scale_size(range = c(5, 40)) + 
       geom_text(aes(
         x = x,
         y = y,
         label = paste("Topic", topic)
       )) +
+      lims(x = c(min(distanceMatrix$x) - 0.1,
+                 max(distanceMatrix$x + 0.1)), 
+           y = c(min(distanceMatrix$y) - 0.1,
+                 max(distanceMatrix$y + 0.1))) + 
       coord_equal() + 
-      lims(x = c(-0.5, 0.5), y = c(-0.5, 0.5)) + 
       scale_color_gradient2(low = "red",
-                            mid = "white",
+                            mid = "grey",
                             high = "green",
                             na.value = "black",
                             limits = c(0, 1),
-                            midpoint = 0.5,
-                            breaks = c(0.2, 0.4, 0.6, 0.8)) + 
+                            midpoint = 0.5) + 
       theme_minimal() + 
       theme() + 
       ggtitle("Topic distance map") + 
