@@ -6,6 +6,7 @@ library("syuzhet")
 library("LDAvis")
 library("ggplot2")
 library("proxy")
+library("wesanderson")
 
 # Remove these later
 library("Rtsne")

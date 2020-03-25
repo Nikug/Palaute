@@ -3,7 +3,7 @@ DefaultRemap <- list(
   inputRows = 5,
   truncate = 40,
   
-  truncateHeader = 20,
+  truncateHeader = 100,
   minTruncateHeader = 0,
   maxTruncateHeader = 1000000,
   

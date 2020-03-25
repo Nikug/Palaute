@@ -19,7 +19,7 @@ Default <- list(
   sampleSizeMin = 1,
   sampleSizeMax = 1000000,
   
-  calculateTopics = TRUE,
+  calculateTopics = FALSE,
   useSampling = FALSE,
   useDefaults = TRUE
 )

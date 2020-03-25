@@ -87,7 +87,6 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
                             "topicSentiment" = topicSentiments,
                             "data" = analysisData)
 
-    print(analysisResults$topicSentiment)
     analysis$results <- analysisResults
     print("Analysis completed!")
   })
