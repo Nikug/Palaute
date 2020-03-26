@@ -108,7 +108,7 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
       
       names(documents) <- paste0("Topic", topic)
       outputDocuments <- paste0("documents", topic)
-      output[[outputDocuments]] <- renderTable({
+      output[[outputDocuments]] <- renderTable(rownames = TRUE, expr = {
         documents
       })
     })
