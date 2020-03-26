@@ -21,6 +21,10 @@ analysisDetailsOutput <- function(id) {
 }
 
 analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
+  rv <- reactiveValues(
+    "lastEmotionSorts" = NULL
+  )
+  
   showDocumentsInputsr <- reactive({
     validate(
       need(resultsr(), message = FALSE)
@@ -69,8 +73,6 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
       sentiment <- results$topicSentiment[[topic]][9:10, ]
       sentimentPlot <- simpleSentimentBarPlot(sentiment, plotTitle = NULL)
       
-
-      
       # Outputs
       output[[outputKeywords]] <- renderText({
         textOut
@@ -115,14 +117,24 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
   observeEvent(orderEmotionsr(), {
     validate(
       need(resultsr(), message = FALSE),
-      need(orderEmotionsr(), message = FALSE)
+      need(!is.na(orderEmotionsr()), message = FALSE)
     )
     
     orderings <- orderEmotionsr()
     results <- resultsr()
     
+    if(is.null(rv$lastEmotionSorts) || is.na(rv$lastEmotionSorts)) {
+      rv$lastEmotionSorts <- orderings == FALSE
+    }
     lapply(1:length(orderings), function(topic) {
-      validate(need(orderings[[topic]], message = FALSE))
+      validate(
+        need(orderings[[topic]], message = FALSE)
+      )
+      if(rv$lastEmotionSorts[[topic]] == orderings[[topic]]) {
+        return()
+      }
+      
+      print(paste("Topic", topic, "ordering:", orderings[[topic]], "last ordering:", rv$lastEmotionSorts[[topic]]))
       
       emotions <- results$topicSentiment[[topic]][1:8, ]
       emotionPlot <- sentimentBarPlot(emotions, orderData = orderings[[topic]], plotTitle = NULL, transparent = TRUE)
@@ -132,6 +144,7 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
         emotionPlot
       }, bg = "transparent")
     })
+    rv$lastEmotionSorts <- orderings
   })
 }
 
