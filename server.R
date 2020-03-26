@@ -23,6 +23,8 @@ server <- function(input, output, session) {
   
   analysisSettings <- callModule(analysisSettingsFunction, id = "analysisSettings", datar)
   analysisResults <- callModule(analysisInputFunction, id = "analysisInput", reactive({analysisSettings}), datar)
+  
   callModule(analysisSummaryOutputFunction, id = "analysisSummary", reactive({analysisResults$results}))
+  callModule(analysisDetailsOutputFunction, id = "detailsSummary", reactive({analysisResults$results}))
   
 }

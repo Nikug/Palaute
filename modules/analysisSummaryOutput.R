@@ -12,9 +12,9 @@ analysisSummaryOutput <- function(id) {
   ns <- NS(id)
   
   tagList(
-    tags$h1("Analysis summary"),
     fluidRow(
       column(width = 6,
+        tags$h2("Analysis statistics"),
         verbatimTextOutput(outputId = ns("statistics"))
       )
     ),
@@ -45,9 +45,9 @@ analysisSummaryOutput <- function(id) {
                  br(),
                  "Topic labels are placed on the mathematical center of the topic's documents"
           ) 
-      ),
-      tags$hr()
+      )
     ),
+    tags$hr(),
     tags$h2("Sentiment analysis summary"),
     fluidRow(
       column(width = 6,
@@ -208,7 +208,7 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
   })
 }
 
-sentimentBarPlot <- function(data, orderData = TRUE, plotTitle = "Summary", plotSubtitle = "") {
+sentimentBarPlot <- function(data, orderData = TRUE, plotTitle = "Summary", plotSubtitle = "", transparent = FALSE) {
   if(orderData) {
     data$emotion <- reorder(data$emotion, data$percentage)
   }
@@ -242,6 +242,15 @@ sentimentBarPlot <- function(data, orderData = TRUE, plotTitle = "Summary", plot
     labs(subtitle = plotSubtitle) +
     xlab(label = NULL) + 
     ylab(label = "Percentage")
+  
+  if(transparent) {
+    sentimentPlot <- sentimentPlot +
+      theme(
+        panel.background = element_blank(),
+        plot.background = element_blank(),
+        panel.grid = element_line(size = 0.25, linetype = "solid", color = "grey")
+      )
+  }
   
   return(sentimentPlot)
 }

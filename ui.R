@@ -7,6 +7,7 @@ source("modules/analysisSettingsInput.R")
 source("modules/analysisInput.R")
 source("modules/remapInput.R")
 source("modules/analysisSummaryOutput.R")
+source("modules/analysisDetailsOutput.R")
 
 # Scripts
 source("scripts/analysis.R")
@@ -36,7 +37,7 @@ ui <- navbarPage(theme = shinytheme("cosmo"),
   tabPanel(title = "Summary",
     analysisSummaryOutput(id = "analysisSummary")
   ),
-  tabPanel(title = "Details"
-
+  tabPanel(title = "Details",
+    analysisDetailsOutput(id = "detailsSummary")
   )
 )

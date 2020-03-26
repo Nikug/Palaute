@@ -137,7 +137,7 @@ remapInputFunction <- function(input, output, session, csv) {
   remapInputsr <- reactive({
     inputNames <- remapInputNamesr()
     inputs <- list()
-    inputs <- lapply(inputNames, function(x) paste0(inputs, input[[x]]))
+    inputs <- lapply(inputNames, function(inputName) paste0(inputs, input[[inputName]]))
   })
   
   # Create remapping components
