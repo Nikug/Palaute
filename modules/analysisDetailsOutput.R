@@ -13,36 +13,38 @@ analysisDetailsOutput <- function(id) {
   tagList(
     fluidRow(
       column(width = 4,
-        wellPanel(
-          tags$h2("Filter"),
-          checkboxInput(inputId = ns("orderEmotions"),
-                        label = "Sort emotion analysis",
-                        value = FALSE
-                        ),
-          numericInput(inputId = ns("numberOfKeywords"),
-                       label = "Number of keywords",
-                       value = DetailSettings$keywords,
-                       min = DetailSettings$minKeywords,
-                       max = DetailSettings$maxKeywords
-                       ),
-          numericInput(inputId = ns("showDocuments"),
-                       label = "Show top documents",
-                       value = DetailSettings$documents, 
-                       min = DetailSettings$minDocuments,
-                       max = DetailSettings$maxDocuments
-                       ),
-          checkboxInput(inputId = ns("hideKeywords"),
-                        label = "Hide keywords",
-                        value = FALSE),
-          checkboxInput(inputId = ns("hideSentiment"),
-                        label = "Hide sentiment",
-                        value = FALSE),
-          checkboxInput(inputId = ns("hideEmotions"),
-                        label = "Hide emotions",
-                        value = FALSE),
-          checkboxInput(inputId = ns("hideDocuments"),
-                        label = "Hide documents",
-                        value = FALSE)
+        div(class = "fixed",
+          wellPanel(class = "scaleWidth",
+            tags$h2("Filter"),
+            checkboxInput(inputId = ns("orderEmotions"),
+                          label = "Sort emotion analysis",
+                          value = FALSE
+                          ),
+            numericInput(inputId = ns("numberOfKeywords"),
+                         label = "Number of keywords",
+                         value = DetailSettings$keywords,
+                         min = DetailSettings$minKeywords,
+                         max = DetailSettings$maxKeywords
+                         ),
+            numericInput(inputId = ns("showDocuments"),
+                         label = "Show top documents",
+                         value = DetailSettings$documents, 
+                         min = DetailSettings$minDocuments,
+                         max = DetailSettings$maxDocuments
+                         ),
+            checkboxInput(inputId = ns("hideKeywords"),
+                          label = "Hide keywords",
+                          value = FALSE),
+            checkboxInput(inputId = ns("hideSentiment"),
+                          label = "Hide sentiment",
+                          value = FALSE),
+            checkboxInput(inputId = ns("hideEmotions"),
+                          label = "Hide emotions",
+                          value = FALSE),
+            checkboxInput(inputId = ns("hideDocuments"),
+                          label = "Hide documents",
+                          value = FALSE)
+          )
         )
       ),
       column(width = 8,

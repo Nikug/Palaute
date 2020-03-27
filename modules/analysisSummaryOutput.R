@@ -1,7 +1,7 @@
 PlotSettings <- list(
   "textSize" = 16,
   "axisSize" = 14,
-  "geomTextSize" = 14 / .pt,
+  "geomTextSize" = 14 / ggplot2::.pt,
   "subtitleSize" = 12,
   "plotHeight" = "700px",
   "plotWidth" = "100%",

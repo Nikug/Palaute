@@ -12,32 +12,40 @@ source("modules/analysisDetailsOutput.R")
 # Scripts
 source("scripts/analysis.R")
 
-ui <- navbarPage(theme = shinytheme("cosmo"),
-  title = "Course Analysis",
-  inverse = TRUE,
-  
-  tabPanel(title = "Main",
-    fluidRow(
-      column(width = 4,
-        wellPanel(
-          analysisSettingsInput(id = "analysisSettings"),
-          analysisInput(id = "analysisInput")
-        )
-      ),
-      column(width = 8,
-        wellPanel(
-          fileInputUI(id = "fileInput")
+ui <- tagList(
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+  ),
+  navbarPage(theme = shinytheme("cosmo"),
+    title = "Course Analysis",
+    inverse = TRUE,
+    
+    
+    tabPanel(title = "Main",
+      fluidRow(
+        column(width = 4,
+          div(class = "fixed",
+            wellPanel(class = "scaleWidth",
+              analysisSettingsInput(id = "analysisSettings"),
+              analysisInput(id = "analysisInput")
+            )
+          )
         ),
-        wellPanel(
-          remapInput(id = "remapInput")
+        column(width = 8,
+          wellPanel(
+            fileInputUI(id = "fileInput")
+          ),
+          wellPanel(
+            remapInput(id = "remapInput")
+          )
         )
       )
+    ),
+    tabPanel(title = "Summary",
+      analysisSummaryOutput(id = "analysisSummary")
+    ),
+    tabPanel(title = "Details",
+      analysisDetailsOutput(id = "detailsSummary")
     )
-  ),
-  tabPanel(title = "Summary",
-    analysisSummaryOutput(id = "analysisSummary")
-  ),
-  tabPanel(title = "Details",
-    analysisDetailsOutput(id = "detailsSummary")
   )
 )
