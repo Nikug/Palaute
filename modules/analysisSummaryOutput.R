@@ -64,10 +64,12 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
   output$statistics <- renderText({
     results <- resultsr()
     model <- results$model
-    text <- paste(
+    text <- paste0(
       ifelse(model$convergence$converged, "Model Converged!", "Model did not converge, results might be inaccurate."),
-      "\nTopics:", model$settings$dim$K,
-      "\nIterations:", model$convergence$its
+      "\nTopics: ", model$settings$dim$K,
+      "\nIterations: ", model$convergence$its, "/", model$settings$convergence$max.em.its,
+      " Elapsed time: ", round(model$time, 1), "s",
+      "\nDocuments in the model after preprocessing: ", model$settings$dim$N
       )
   })
   
