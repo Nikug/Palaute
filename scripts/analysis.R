@@ -84,6 +84,9 @@ sentimentAnalysis <- function(documents, language) {
   emotionSumDataframe <- cbind("emotion" = rownames(emotionSumDataframe), emotionSumDataframe)
   rownames(emotionSumDataframe) <- NULL
   
+  documentCount <- length(strsplit(as.character(documents), "\n\n", fixed = TRUE)[[1]])
+  emotionSumDataframe <- cbind(emotionSumDataframe, "documentCount" = documentCount)
+  
   return(emotionSumDataframe)
 }
 
@@ -92,10 +95,9 @@ topicDocuments <- function(model, data, settings) {
 
   documentList <- vector(mode = "list", length = model$settings$dim$K)
   
-  for(i in 1:length(topicProportions)) {
-    documents <- findThoughts(model, texts = as.character(data$meta$documents), topics = i, n = topicProportions[i])
-    documentList[[i]] <- documents$docs
-    names(documentList[[i]]) <- paste0("topic", i)
+  for(i in 1:model$settings$dim$N) {
+    index <- which.max(model$theta[i, ])
+    documentList[[index]] <- paste(documentList[[index]], data$meta$documents[[i]], sep = "\n\n")
   }
   return(documentList)
 }

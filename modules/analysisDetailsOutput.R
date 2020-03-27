@@ -65,7 +65,8 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
     
     lapply(1:model$settings$dim$K, function(topic) {
       # Generate UI
-      ui <- generateUI(topic, model, results$topicSentiment[[topic]], session$ns, input)
+      hide <- input[[paste0("hideTopic", topic)]]
+      ui <- generateUI(topic, model, results$topicSentiment[[topic]], session$ns, input, hide)
       insertUI(selector = "#topics", where = "beforeEnd", ui = ui)
       
       # Sentiment
@@ -155,48 +156,63 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
   })
 }
 
-generateUI <- function(topic, model, sentiment, ns, input) {
+generateUI <- function(topic, model, sentiment, ns, input, hide) {
   topicProportion <- sum(model$theta[, topic] / model$settings$dim$N)
+  documentCount <- sentiment$documentCount[1]
   ui <- tagList(
     wellPanel(
       fluidRow(
-        column(width = 12,
-          tags$h3(paste("Topic", topic)),
-          tags$p(paste0("Topic proportion ", round(topicProportion * 100, 0), "%"))
+        column(width = 10,
+          tags$h3(paste("Topic", topic))
+        ),
+        column(width = 2,
+          checkboxInput(inputId = ns(paste0("hideTopic", topic)),
+                        label = "Hide",
+                        value = hide)
         )
       ),
-      fluidRow(
-        conditionalPanel(condition = "input.hideSentiment == false || input.hideKeywords == false", ns = ns,
-          column(width = ifelse(input$hideEmotions == FALSE, 6, 12),
-            conditionalPanel(condition = "input.hideSentiment == false", ns = ns,
-              wellPanel(
-                tags$h3("Sentiment"),
-                plotOutput(outputId = ns(paste0("sentiment", topic)), height = "100px")
+      conditionalPanel(condition = paste0("input.hideTopic", topic, " == false"), ns = ns,
+        fluidRow(
+          column(width = 12,
+            div(class = "text-info",
+              tags$p(paste0("Topic proportion ", round(topicProportion * 100, 0), "%")),
+              tags$p(paste0(documentCount, " exclusive documents used in sentiment and emotion analysis"))
+            )
+          )
+        ),
+        fluidRow(
+          conditionalPanel(condition = "input.hideSentiment == false || input.hideKeywords == false", ns = ns,
+            column(width = ifelse(input$hideEmotions == FALSE, 6, 12),
+              conditionalPanel(condition = "input.hideSentiment == false", ns = ns,
+                wellPanel(
+                  tags$h3("Sentiment"),
+                  plotOutput(outputId = ns(paste0("sentiment", topic)), height = "100px")
+                )
+              ),
+              conditionalPanel(condition = "input.hideKeywords == false", ns = ns,
+                wellPanel(
+                  tags$h3("Key words"),
+                  uiOutput(outputId = ns(paste0("keywords", topic)))
+                )
               )
-            ),
-            conditionalPanel(condition = "input.hideKeywords == false", ns = ns,
+            )
+          ),
+          conditionalPanel(condition = "input.hideEmotions == false", ns = ns,
+            column(width= 6,
               wellPanel(
-                tags$h3("Key words"),
-                uiOutput(outputId = ns(paste0("keywords", topic)))
+                tags$h3("Top emotions"),
+                plotOutput(outputId = ns(paste0("emotion", topic)))
               )
             )
           )
         ),
-        conditionalPanel(condition = "input.hideEmotions == false", ns = ns,
-          column(width= 6,
-            wellPanel(
-              tags$h3("Top emotions"),
-              plotOutput(outputId = ns(paste0("emotion", topic)))
-            )
-          )
-        )
-      ),
-      fluidRow(
-        column(width = 12,
-          conditionalPanel(condition = "input.hideDocuments == false && input.showDocuments > 0", ns = ns,
-            wellPanel(
-              tags$h3("Top documents"),
-              tableOutput(outputId = ns(paste0("documents", topic)))
+        fluidRow(
+          column(width = 12,
+            conditionalPanel(condition = "input.hideDocuments == false && input.showDocuments > 0", ns = ns,
+              wellPanel(
+                tags$h3("Top documents"),
+                tableOutput(outputId = ns(paste0("documents", topic)))
+              )
             )
           )
         )

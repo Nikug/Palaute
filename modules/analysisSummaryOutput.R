@@ -71,6 +71,7 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
       )
   })
   
+  # Document topic graph
   output$documentSummary <- renderPlot({
     results <- resultsr()
     model <- results$model
@@ -130,6 +131,7 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
     summaryPlot
   })
   
+  # Topic distance graph
   output$topicSummary <- renderPlot({
     results <- resultsr()
     model <- results$model
@@ -154,7 +156,8 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
         color = sentiment,
         alpha = 0.7
       )) + 
-      scale_radius(range = c(20 / sqrt(topicCount), 200 / sqrt(topicCount))) + 
+      scale_radius(range = c(20 / sqrt(topicCount), 100 / sqrt(topicCount)),
+                    limits = c(0, max(distanceMatrix$size))) + 
       geom_text(aes(
         x = x,
         y = y,
