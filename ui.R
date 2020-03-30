@@ -2,6 +2,7 @@
 library("shinythemes")
 
 # Modules
+source("modules/helpUI.R")
 source("modules/fileInput.R")
 source("modules/analysisSettingsInput.R")
 source("modules/analysisInput.R")
@@ -17,7 +18,7 @@ ui <- tagList(
     tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
   ),
   navbarPage(theme = shinytheme("cosmo"),
-    title = "Course Analysis",
+    title = "Topic model analysis software app",
     inverse = TRUE,
     
     
@@ -46,6 +47,9 @@ ui <- tagList(
     ),
     tabPanel(title = "Details",
       analysisDetailsOutput(id = "detailsSummary")
+    ),
+    tabPanel(title = "Help",
+      helpUI(id = "helpUI")        
     )
   )
 )

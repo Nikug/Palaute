@@ -16,6 +16,7 @@ options(
 
 # r suffix for reactive variables
 server <- function(input, output, session) {
+  callModule(helpUIFunction, id = "helpUI")
   csvr <- callModule(fileInputFunction, id = "fileInput")
   datar <- callModule(remapInputFunction, id = "remapInput", csvr)
   

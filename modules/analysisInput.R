@@ -1,3 +1,8 @@
+# Notification settings
+Notifications <- list(
+  "displayTime" = 20
+)
+
 analysisInput <- function(id) {
   ns <- NS(id)
   
@@ -75,10 +80,20 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
   })
   
   observeEvent(input$start, {
-    print("Started analysis")
+    if(Verbose) {print("Started analysis")}
+    mainProgress <- shiny::Progress$new()
+    on.exit(mainProgress$close())
+    mainProgress$set(message = "Status:", value = 0)
+    
     settings <- settingsr()
+    
+    mainProgress$inc(0, detail = "Calculating topic model")
     model <- modelr()
+    
+    mainProgress$inc (1/3, detail = "Performing sentiment analysis")
     sentimentSummary <- sentimentSummaryr()
+    
+    mainProgress$inc(1/3, detail = "Performing topic specific sentiment analysis")
     topicSentiments <- topicSentimentsr()
     analysisData <- analysisDatar()
 
@@ -88,7 +103,12 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
                             "data" = analysisData)
 
     analysis$results <- analysisResults
-    print("Analysis completed!")
+    
+    if(Verbose) {print("Analysis completed!")}
+    mainProgress$set(1, detail = "Finished!")
+    showNotification("Analysis completed!",
+                     duration = Notifications$displayTime,
+                     type = "message")
   })
   
   return(analysis)
