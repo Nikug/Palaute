@@ -288,9 +288,8 @@ remapInputFunction <- function(input, output, session, csv) {
   
   # File download
   output$download <- downloadHandler(
-    filename = function() {
-      return("Documents.csv")
-    },
+    filename = "Documents.csv",
+    contentType = "text/csv",
     
     content = function(file) {
       data <- remapData()
