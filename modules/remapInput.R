@@ -89,7 +89,7 @@ remapInput <- function(id) {
                    value = DefaultRemap$inputRows)
       ),
       column(width = 2, offset = 2,
-        tags$p("Download")
+        downloadButton(outputId = ns("download"), label = "Download as CSV")
       ) 
     ),
     conditionalPanel(condition = "input.hideOutput == false", ns = ns,
@@ -285,6 +285,22 @@ remapInputFunction <- function(input, output, session, csv) {
     firstRows <- remapData()[1:input$outputRows, , drop = FALSE]
     firstRows
   })
+  
+  # File download
+  output$download <- downloadHandler(
+    filename = function() {
+      return("Documents.csv")
+    },
+    
+    content = function(file) {
+      data <- remapData()
+      validate(
+        need(data, message = "Nothing to download"),
+        need(nrow(data) > 0, message = "Nothing to download")
+      )
+      write.csv(data, file, row.names = FALSE)
+    }
+  )
   
   # Return value
   return(remapData)
