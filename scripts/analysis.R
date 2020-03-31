@@ -1,5 +1,14 @@
 # Consts
-Verbose = TRUE
+Verbose = FALSE
+STM <- list(
+  "seed" = 0,
+  "runs" = 50,
+  "reportEvery" = 100
+)
+
+AnalysisSettings <- list(
+  "updateProgressStep" = 2
+)
 
 sampleDocuments <- function(data, sampleSize) {
   dataSample <- sample_n(data, sampleSize)
@@ -7,12 +16,52 @@ sampleDocuments <- function(data, sampleSize) {
 }
 
 preprocessDocuments <- function(data, settings) {
+  progress <- shiny::Progress$new()
+  on.exit(progress$close())
+  progress$set(0, message = "Preprocessing text: ",
+               detail = paste0("Preprocessing",
+                               "\nThis can take minutes..."))
   preprocessedDocuments <- textProcessor(data$documents, metadata = data,
-                                         language = settings$language)
+                                         language = settings$language,
+                                         verbose = Verbose)
+  progress$inc(0.5, detail = paste0("Preparing documents",
+                                    "\nThis can take minutes..."))
   preparedDocuments <- prepDocuments(preprocessedDocuments$documents,
                                      preprocessedDocuments$vocab,
-                                     preprocessedDocuments$meta)
+                                     preprocessedDocuments$meta,
+                                     verbose = Verbose)
   return(preparedDocuments)
+}
+
+createModel <- function(data, settings, iterations, prevalenceCovariateFormula, topicCovariateFormula) {
+  model <- stm(data$documents, data$vocab,
+               K = settings$topicCount,
+               max.em.its = iterations,
+               init.type = "Spectral",
+               seed = STM$seed,
+               reportevery = STM$reportEvery,
+               data = data$meta,
+               verbose = Verbose,
+               prevalence = prevalenceCovariateFormula,
+               content = topicCovariateFormula
+  )
+  return(model)
+}
+
+iterateModel <- function(data, model, iterations, prevalenceCovariateFormula, topicCovariateFormula) {
+  model <- stm(data$documents, data$vocab,
+               K = model$settings$dim$K,
+               max.em.its = model$settings$convergence$max.em.its + iterations,
+               init.type = model$settings$init$mode,
+               seed = model$settings$seed,
+               reportevery = model$settings$topicreportevery,
+               data = data$meta,
+               verbose = Verbose,
+               prevalence = prevalenceCovariateFormula,
+               content = topicCovariateFormula,
+               model = model
+  )
+  return(model)
 }
 
 topicModelAnalysis <- function(data, settings) {
@@ -32,34 +81,86 @@ topicModelAnalysis <- function(data, settings) {
   }
   
   model <- NULL
+  progress <- shiny::Progress$new()
+  on.exit(progress$close())
+  progress$set(message = "Structural topic model:", value = 0)
+  
   if(settings$calculateTopics) {
-    models <- selectModel(data$documents, data$vocab,
-                        K = settings$topicCount,
-                        max.em.its = settings$maxIters,
-                        init.type = "LDA",
-                        seed = 0,
-                        data = data$meta,
-                        verbose = Verbose,
-                        runs = 50,
-                        prevalence = prevalenceCovariateFormula,
-                        content = topicCovariateFormula
-    )
-    semanticCoherences <- sapply(models$semcoh, sum)
-    model <- models$runout[[which.max(semanticCoherences)]]
-    print(paste("Selected model:", which.max(semanticCoherences)))
-    print(str(model))
+    allModels <- list("out" = list(), "exclusivity" = list(), "semcoh" = list())
+
+    iterations <- settings$rangeEnd - settings$rangeStart + 1
+    for(i in settings$rangeStart : settings$rangeEnd) {
+      
+      if(i == settings$rangeStart) {
+        progress$inc(0,
+                     detail = paste0("Calculating models with ", i, " topics",
+                                     "\nThis can take multiple minutes..."))
+      } else {
+        progress$inc(1 / iterations,
+                     detail = paste0("Calculating models with ", i, " topics",
+                                     "\nEstimated time left: ",
+                                     timeDifference(startTime, endTime, settings$rangeEnd - i + 1)))
+      }
+      
+      startTime <- Sys.time()
+      models <- manyTopics(data$documents, data$vocab,
+                           K = i,
+                           max.em.its = settings$maxIters,
+                           init.type = "LDA",
+                           seed = STM$seed,
+                           data = data$meta,
+                           verbose = Verbose,
+                           netverbose = Verbose,
+                           reportevery = STM$reportEvery,
+                           runs = STM$runs,
+                           prevalence = prevalenceCovariateFormula,
+                           content = topicCovariateFormula
+      )
+      allModels$out <- rbind(allModels$out, models$out)
+      allModels$exclusivity <- rbind(allModels$exclusivity, models$exclusivity)
+      allModels$semcoh <- rbind(allModels$semcoh, models$semcoh)
+      endTime <- Sys.time()
+    }
+    
+    
+    semanticCoherences <- sapply(allModels$semcoh, sum)
+    model <- allModels$out[[which.max(semanticCoherences)]]
+
   } else {
-    model <- stm(data$documents, data$vocab,
-                 K = settings$topicCount,
-                 max.em.its = settings$maxIters,
-                 init.type = "Spectral",
-                 seed = 0,
-                 reportevery = 100,
-                 data = data$meta,
-                 verbose = Verbose,
-                 prevalence = prevalenceCovariateFormula,
-                 content = topicCovariateFormula
-    )
+    progress$inc(0, detail = paste0("Iteration: 0/", settings$maxIters))
+    startTime <- Sys.time()
+    model <- createModel(data, settings, iterations = 1, prevalenceCovariateFormula, topicCovariateFormula)
+    endTime <- Sys.time()
+    i <- settings$maxIters - model$convergence$its
+    while(i > 0) {
+      iterations <- AnalysisSettings$updateProgressStep
+      if(i < iterations) {
+        iterations <- i
+      }
+      i <- i - iterations
+      
+      if(length(model$convergence$bound) > 1) {
+        last <- length(model$convergence$bound)
+        change <- (model$convergence$bound[last] - model$convergence$bound[last - 1]) / abs(model$convergence$bound[last - 1])
+      } else {
+        change <- 0
+      }
+      
+      progress$inc(iterations / settings$maxIters,
+                   detail = paste0("Iteration: ", settings$maxIters - i, "/", settings$maxIters,
+                                   "\nEstimated time left: ", timeDifference(startTime, endTime, i),
+                                   "\nRelative change: ", sprintf("%.2e", change), " Target: ",
+                                   sprintf("%.0e", model$settings$convergence$em.converge.thresh)
+                                   ))
+      
+      startTime <- Sys.time()
+      model <- iterateModel(data, model, iterations = iterations, prevalenceCovariateFormula, topicCovariateFormula)
+      endTime <- Sys.time()
+      if(model$convergence$converged) {
+        break
+      }
+    }
+
   }
   
   return(model)
@@ -126,4 +227,25 @@ topicDistances <- function(topicTerms) {
   reducedDimensionsDistances <- cmdscale(distances, k = 2)
   return(data.frame("x" = reducedDimensionsDistances[, 1],
                     "y" = reducedDimensionsDistances[, 2]))
+}
+
+timeDifference <- function(start, end, iterationsLeft) {
+  difference <- difftime(end, start) * iterationsLeft
+  hours <- floor(as.numeric(difference, units = "hours"))
+  minutes <- floor(as.numeric(difference, units = "mins"))
+  seconds <- floor(as.numeric(difference, units = "secs"))
+  text <- ""
+  if(hours > 0) {
+    text <- paste0(text, hours, "h ")
+  }
+  if(minutes > 0) {
+    leftOverMinutes <- minutes - hours * 60
+    text <- paste0(text, leftOverMinutes, "m ")
+  }
+  if(seconds >= 0) {
+    leftOverSeconds <- seconds - minutes * 60
+    text <- paste0(text, leftOverSeconds, "s ")
+  }
+
+  return(text)
 }

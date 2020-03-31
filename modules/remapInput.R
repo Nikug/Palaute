@@ -87,7 +87,10 @@ remapInput <- function(id) {
                    min = DefaultRemap$minInputRows,
                    max = DefaultRemap$maxInputRows,
                    value = DefaultRemap$inputRows)
-      )
+      ),
+      column(width = 2, offset = 2,
+        tags$p("Download")
+      ) 
     ),
     conditionalPanel(condition = "input.hideOutput == false", ns = ns,
       div(class = "small, table-responsive",

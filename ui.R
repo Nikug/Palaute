@@ -18,8 +18,9 @@ ui <- tagList(
     tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
   ),
   navbarPage(theme = shinytheme("cosmo"),
-    title = "Topic model analysis software app",
+    title = "Topical",
     inverse = TRUE,
+    position = ("fixed-top"),
     
     
     tabPanel(title = "Main",

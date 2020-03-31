@@ -56,6 +56,12 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
     analysisData <- analysisDatar()
     settings <- isolate(reactiveValuesToList(settingsr()))
     
+    progress <- shiny::Progress$new()
+    on.exit(progress$close())
+    progress$set(0.3, message = "Sentiment and emotion analysis: ",
+                 detail = paste0("For the whole data set",
+                                  "\nThis can take minutes..."))
+    
     result <- sentimentAnalysis(analysisData$meta$documents, settings$language)
     result
   })
@@ -70,9 +76,17 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
     analysisData <- analysisDatar()
     settings <- isolate(reactiveValuesToList(settingsr()))
     
+    progress <- shiny::Progress$new()
+    on.exit(progress$close())
+    progress$set(0, message = "Performing topic specific sentiment and emotion analysis: ")
+    
     documentList <- topicDocuments(model, analysisData, settings)
-    topicSentiments <- vector(mode = "list", length = length(documentList))
-    for(i in 1:length(documentList)) {
+    topics <- length(documentList)
+    topicSentiments <- vector(mode = "list", length = topics)
+    for(i in 1:topics) {
+      progress$inc(1 / topics,
+                   detail = paste0("Topic ", i, "/", topics))
+      
       documents <- documentList[[i]]
       topicSentiments[[i]] <- sentimentAnalysis(documents, settings$language)
     }

@@ -9,7 +9,10 @@ Default <- list(
   
   topicCount = 6,
   topicCountMin = 2,
-  topicCountMax = 100,
+  topicCountMax = 1000,
+  
+  rangeStart = 4,
+  rangeEnd = 25,
   
   maxIters = 75,
   maxItersMin = 1,
@@ -68,6 +71,24 @@ analysisSettingsInput <- function(id) {
           )
         )
       ),
+      fluidRow(
+        conditionalPanel(condition = "input.calculateTopics == true", ns = ns,
+          column(width = 6,
+            numericInput(inputId = ns("rangeStart"), label = "Search start", 
+                        min = Default$topicCountMin,
+                        max = Default$topicCountMax,
+                        value =  Default$rangeStart              
+            )
+          ),
+          column(width = 6,
+            numericInput(inputId = ns("rangeEnd"), label = "Search end", 
+                        min = Default$topicCountMin,
+                        max = Default$topicCountMax,
+                        value =  Default$rangeEnd            
+            )
+          )
+        )
+      ),
       
       # Max iterations
       numericInput(inputId = ns("maxIterations"), label = "Maximum iterations",
@@ -116,6 +137,8 @@ analysisSettingsFunction <- function(input, output, session, datar) {
       settings$sampleSize <- Default$sampleSize
       
       settings$calculateTopics <- Default$calculateTopics
+      settings$rangeStart <- Default$rangeStart
+      settings$rangeEnd <- Default$rangeEnd
       settings$useSampling <- Default$useSampling
       
       settings$language <- input$language
@@ -123,13 +146,18 @@ analysisSettingsFunction <- function(input, output, session, datar) {
       validate(
         need(is.numeric(input$topicCount), message = "Topic count is not numeric"),
         need(is.numeric(input$maxIterations), message = "Max iterations is not numeric"),
-        need(is.numeric(input$sampleSize), message = "Sample size is not numeric")
+        need(is.numeric(input$sampleSize), message = "Sample size is not numeric"),
+        need(is.numeric(input$rangeStart), message = "Search range start is not numeric"),
+        need(is.numeric(input$rangeEnd), message = "Search range end is not numeric")
         )
       settings$topicCount <- clamp(input$topicCount, Default$topicCountMin, Default$topicCountMax)
       settings$maxIters <- clamp(input$maxIterations, Default$maxItersMin, Default$maxItersMax)
       settings$sampleSize <- clamp(input$sampleSize, Default$sampleSizeMin, Default$sampleSizeMax)
       
       settings$calculateTopics <- input$calculateTopics
+      settings$rangeStart <- clamp(input$rangeStart, Default$topicCountMin, Default$topicCountMax)
+      settings$rangeEnd <- clamp(input$rangeEnd, Default$topicCountMin, Default$topicCountMax)
+      
       settings$useSampling <- input$useSampling
       
       settings$language <- input$language

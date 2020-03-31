@@ -83,7 +83,7 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
                                initial_dims = topicCount,
                                perplexity = ifelse(perplexity < 1, 1, perplexity),
                                max_iter = 500,
-                               verbose = TRUE,
+                               verbose = Verbose,
                                check_duplicates = FALSE)
 
     reducedDimensionsDataframe <- data.frame(list("x" = reducedDimensions$Y[, 1],
