@@ -74,10 +74,15 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
       # Sentiment
       outputSentiment <- paste0("sentiment", topic)
       sentiment <- results$topicSentiment[[topic]][9:10, ]
-      sentimentPlot <- simpleSentimentBarPlot(sentiment, plotTitle = NULL)
       
       # Outputs
       output[[outputSentiment]] <- renderPlot({
+        validate(
+          need(sum(sentiment$documentCount) > 0, message = "This topic has no exclusive documents"),
+          need(!is.na(sentiment$percentage), message = "Sentiment was not identified")
+        )
+        
+        sentimentPlot <- simpleSentimentBarPlot(sentiment, plotTitle = NULL)
         sentimentPlot
       }, bg = "transparent")
     })
@@ -122,12 +127,18 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
     lapply(1:model$settings$dim$K, function(topic) {
       outputEmotions <- paste0("emotion", topic)
       emotions <- results$topicSentiment[[topic]][1:8, ]
-      emotionPlot <- sentimentBarPlot(emotions,
-                                      orderData = input$orderEmotions,
-                                      plotTitle = NULL,
-                                      transparent = TRUE)
+      
       
       output[[outputEmotions]] <- renderPlot({
+        validate(
+          need(sum(emotions$documentCount) > 0, message = "This topic has no exclusive documents"),
+          need(!is.na(emotions$percentage), message = "There are no identified emotions")
+        )
+        
+        emotionPlot <- sentimentBarPlot(emotions,
+                                        orderData = input$orderEmotions,
+                                        plotTitle = NULL,
+                                        transparent = TRUE)
         emotionPlot
       }, bg = "transparent")
     })
