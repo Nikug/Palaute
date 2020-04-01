@@ -21,9 +21,15 @@ preprocessDocuments <- function(data, settings) {
   progress$set(0, message = "Preprocessing text: ",
                detail = paste0("Preprocessing",
                                "\nThis can take minutes..."))
-  preprocessedDocuments <- textProcessor(data$documents, metadata = data,
+  
+  stemmedDocuments <- text_tokens(data$documents, stemmer = settings$language)
+  data$stemmedDocuments <- sapply(stemmedDocuments, paste, collapse = " ")
+  
+  preprocessedDocuments <- textProcessor(data$stemmedDocuments,
+                                         metadata = data,
                                          language = settings$language,
-                                         verbose = Verbose)
+                                         verbose = Verbose,
+                                         stem = FALSE)
   progress$inc(0.5, detail = paste0("Preparing documents",
                                     "\nThis can take minutes..."))
   preparedDocuments <- prepDocuments(preprocessedDocuments$documents,
@@ -103,19 +109,26 @@ topicModelAnalysis <- function(data, settings) {
       }
       
       startTime <- Sys.time()
-      models <- manyTopics(data$documents, data$vocab,
-                           K = i,
-                           max.em.its = settings$maxIters,
-                           init.type = "LDA",
-                           seed = STM$seed,
-                           data = data$meta,
-                           verbose = Verbose,
-                           netverbose = Verbose,
-                           reportevery = STM$reportEvery,
-                           runs = STM$runs,
-                           prevalence = prevalenceCovariateFormula,
-                           content = topicCovariateFormula
-      )
+      arguments <- list(data$documents, data$vocab,
+                    K = i,
+                    max.em.its = settings$maxIters,
+                    init.type = "LDA",
+                    seed = STM$seed,
+                    data = data$meta,
+                    verbose = Verbose,
+                    netverbose = Verbose,
+                    reportevery = STM$reportEvery,
+                    runs = STM$runs,
+                    prevalence = prevalenceCovariateFormula,
+                    content = NULL
+                    )
+      if(Verbose) {
+        models <- do.call(manyTopics, arguments)
+      } else {
+        capture.output(
+          models <- do.call(manyTopics, arguments)
+        )
+      }
       allModels$out <- rbind(allModels$out, models$out)
       allModels$exclusivity <- rbind(allModels$exclusivity, models$exclusivity)
       allModels$semcoh <- rbind(allModels$semcoh, models$semcoh)
@@ -123,8 +136,10 @@ topicModelAnalysis <- function(data, settings) {
     }
     
     
-    semanticCoherences <- sapply(allModels$semcoh, sum)
-    model <- allModels$out[[which.max(semanticCoherences)]]
+    # Calculate best model as a max mean of semantic coherence and exclusivity
+    semanticCoherences <- rescale(sapply(allModels$semcoh, sum), to = c(0, 1))
+    exclusitivities <- rescale(sapply(allModels$exclusivity, sum), to = c(0, 1))
+    model <- allModels$out[[which.max((semanticCoherences + exclusitivities) / 2)]]
 
   } else {
     progress$inc(0, detail = paste0("Iteration: 0/", settings$maxIters))
@@ -185,7 +200,12 @@ sentimentAnalysis <- function(documents, language) {
   emotionSumDataframe <- cbind("emotion" = rownames(emotionSumDataframe), emotionSumDataframe)
   rownames(emotionSumDataframe) <- NULL
   
-  documentCount <- length(strsplit(as.character(documents), "\n\n", fixed = TRUE)[[1]])
+  splittedDocuments <- strsplit(as.character(documents), "\n\n", fixed = TRUE)
+  if(length(splittedDocuments) == 0) {
+    documentCount = 0
+  } else {
+    documentCount <- length(splittedDocuments[[1]])
+  }
   emotionSumDataframe <- cbind(emotionSumDataframe, "documentCount" = documentCount)
   
   return(emotionSumDataframe)

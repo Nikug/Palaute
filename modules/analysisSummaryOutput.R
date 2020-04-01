@@ -62,6 +62,8 @@ analysisSummaryOutput <- function(id) {
 
 analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
   output$statistics <- renderText({
+    validate(need(resultsr(), message = "Run analysis to see the results"))
+    
     results <- resultsr()
     model <- results$model
     text <- paste0(
@@ -75,6 +77,8 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
   
   # Document topic graph
   output$documentSummary <- renderPlot({
+    validate(need(resultsr(), message = "Run analysis to see the results"))
+    
     results <- resultsr()
     model <- results$model
     topicCount <- model$settings$dim$K
@@ -135,6 +139,8 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
   
   # Topic distance graph
   output$topicSummary <- renderPlot({
+    validate(need(resultsr(), message = "Run analysis to see the results"))
+    
     results <- resultsr()
     model <- results$model
     
@@ -191,6 +197,8 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
   })
   
   output$emotionSummary <- renderPlot({
+    validate(need(resultsr(), message = "Run analysis to see the results"))
+    
     results <- resultsr()
     emotion <- results$sentiment[1:8, ]
     
@@ -202,6 +210,8 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
   })
   
   output$sentimentSummary <- renderPlot({
+    validate(need(resultsr(), message = "Run analysis to see the results"))
+    
     results <- resultsr()
     sentiment <- results$sentiment[9:10, ]
     

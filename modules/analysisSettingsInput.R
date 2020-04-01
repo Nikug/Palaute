@@ -8,7 +8,7 @@ Default <- list(
   language = Languages$fi,
   
   topicCount = 6,
-  topicCountMin = 2,
+  topicCountMin = 3,
   topicCountMax = 1000,
   
   rangeStart = 4,
@@ -155,8 +155,16 @@ analysisSettingsFunction <- function(input, output, session, datar) {
       settings$sampleSize <- clamp(input$sampleSize, Default$sampleSizeMin, Default$sampleSizeMax)
       
       settings$calculateTopics <- input$calculateTopics
-      settings$rangeStart <- clamp(input$rangeStart, Default$topicCountMin, Default$topicCountMax)
-      settings$rangeEnd <- clamp(input$rangeEnd, Default$topicCountMin, Default$topicCountMax)
+      rangeStart <- clamp(input$rangeStart, Default$topicCountMin, Default$topicCountMax)
+      rangeEnd <- clamp(input$rangeEnd, Default$topicCountMin, Default$topicCountMax)
+      
+      if(rangeStart < rangeEnd) {
+        settings$rangeStart <- rangeStart
+        settings$rangeEnd <- rangeEnd
+      } else {
+        settings$rangeStart <- rangeEnd
+        settings$rangeEnd <- rangeStart
+      }
       
       settings$useSampling <- input$useSampling
       

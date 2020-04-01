@@ -43,6 +43,13 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
     analysisData <- analysisDatar()
     settings <- isolate(reactiveValuesToList(settingsr()))
     
+    if(length(analysisData$vocab) <= settings$topicCount) {
+      showNotification(ui = "Topic count can't be larger than vocabulary. Use a larger sample/dataset or decrease topic count",
+                       type = "error",
+                       duration = 20)
+      validate("")
+    }
+    
     model <- topicModelAnalysis(analysisData, settings)
     model
   })

@@ -92,12 +92,19 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
     )
     results <- resultsr()
     model <- results$model
-    
-    topicLabels <- labelTopics(model, n = input$numberOfKeywords)
+    vocabularyLength <- length(model$vocab)
+    topicLabels <- labelTopics(model, n = clamp(input$numberOfKeywords, DetailSettings$minKeywords, vocabularyLength))
     
     lapply(1:model$settings$dim$K, function(topic) {
       outputKeywords <- paste0("keywords", topic)
       textOut <- keywordsTextFormat(topicLabels, topic)
+      
+      if(input$numberOfKeywords > vocabularyLength) {
+        textOut <- tagList(textOut,
+                           tags$p(class = "text-danger", tags$strong("Warning:"),
+                                  paste0("Vocabulary size is ", vocabularyLength, ", only showing ", vocabularyLength, " keywords"))
+                           )
+      }
       
       output[[outputKeywords]] <- renderUI({
         textOut
@@ -143,6 +150,17 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
       validate(need(documentCount, message = FALSE))
       
       documentCount <- as.numeric(documentCount)
+      
+      outputError <- paste0("topDocumentError", topic)
+      if(documentCount > model$settings$dim$N) {
+        documentCount <- model$settings$dim$N
+        output[[outputError]] <- renderText({
+          paste0("There are only ", documentCount, " documents in the model")
+        })
+      } else {
+        output[[outputError]] <- renderText({})
+      }
+      
       documents <- findThoughts(model,
                                 texts = as.character(results$data$meta$documents),
                                 topics = topic,
@@ -213,6 +231,9 @@ generateUI <- function(topic, model, sentiment, ns, input, hide) {
             conditionalPanel(condition = "input.hideDocuments == false && input.showDocuments > 0", ns = ns,
               wellPanel(
                 tags$h3("Top documents"),
+                div(class = "text-danger",
+                  textOutput(outputId = ns(paste0("topDocumentError", topic)))
+                ),
                 tableOutput(outputId = ns(paste0("documents", topic)))
               )
             )

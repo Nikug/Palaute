@@ -1,5 +1,4 @@
 # Libraries
-library("shiny")
 library("dplyr")
 library("stm")
 library("syuzhet")
@@ -8,6 +7,9 @@ library("ggplot2")
 library("proxy")
 library("wesanderson")
 library("Rtsne")
+library("corpus")
+library("scales")
+library("shiny")
 
 # Global options
 options(
