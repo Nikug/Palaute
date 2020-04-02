@@ -95,12 +95,12 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
                                                   "size" = sapply(1:model$settings$dim$N, function(i) max(model$theta[i, ])),
                                                   "topic" = max.col(model$theta, ties.method = "first")
                                                   ))
-    
-    centers <- sapply(1:length(unique(reducedDimensionsDataframe$topic)),
+
+    centers <- sapply(1:topicCount,
                       function(i) c(mean(reducedDimensionsDataframe$x[reducedDimensionsDataframe$topic == i]),
                                     mean(reducedDimensionsDataframe$y[reducedDimensionsDataframe$topic == i])))
-    centers <- rbind(centers, 1:topicCount)
-    centersDataframe <- data.frame(t(centers))
+    
+    centersDataframe <- data.frame(centers[1, ], centers[2, ], c(1:topicCount))
     colnames(centersDataframe) <- c("x", "y", "topic")
     
     summaryPlot <- ggplot(data = reducedDimensionsDataframe) +
@@ -111,7 +111,9 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
         group = factor(topic),
         color = factor(topic),
         alpha = 0.7
-      )) +
+      ),
+        na.rm = TRUE
+      ) +
       scale_radius(range = c(5 / sqrt(topicCount), 50 / sqrt(topicCount))) + 
       
       geom_label(data = centersDataframe, aes(
@@ -121,6 +123,7 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
         group = topic,
         color = factor(topic)
       ),
+        na.rm = TRUE,
         size = PlotSettings$geomTextSize
       ) + 
       theme(
@@ -197,10 +200,16 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
   })
   
   output$emotionSummary <- renderPlot({
-    validate(need(resultsr(), message = "Run analysis to see the results"))
+    validate(
+      need(resultsr(), message = "Run analysis to see the results")
+    )
     
     results <- resultsr()
     emotion <- results$sentiment[1:8, ]
+    
+    validate(
+      need(!is.na(emotion$percentage), message = "No emotions were identified")
+    )
     
     emotionPlot <- sentimentBarPlot(emotion,
                                     orderData = TRUE,
@@ -210,10 +219,17 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
   })
   
   output$sentimentSummary <- renderPlot({
-    validate(need(resultsr(), message = "Run analysis to see the results"))
+    validate(
+      need(resultsr(), message = "Run analysis to see the results")
+    )
+
     
     results <- resultsr()
     sentiment <- results$sentiment[9:10, ]
+    
+    validate(
+      need(!is.na(sentiment$percentage), message = "Sentiment was not identified")
+    )
     
     sentimentPlot <- sentimentBarPlot(sentiment,
                                       orderData = FALSE,

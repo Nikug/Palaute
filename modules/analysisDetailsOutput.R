@@ -132,7 +132,7 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
       output[[outputEmotions]] <- renderPlot({
         validate(
           need(sum(emotions$documentCount) > 0, message = "This topic has no exclusive documents"),
-          need(!is.na(emotions$percentage), message = "There are no identified emotions")
+          need(!is.na(emotions$percentage), message = "No emotions were identified")
         )
         
         emotionPlot <- sentimentBarPlot(emotions,

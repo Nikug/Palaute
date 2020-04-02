@@ -65,7 +65,7 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
     
     progress <- shiny::Progress$new()
     on.exit(progress$close())
-    progress$set(0.3, message = "Sentiment and emotion analysis: ",
+    progress$set(1 / 3, message = "Sentiment and emotion analysis: ",
                  detail = paste0("For the whole data set",
                                   "\nThis can take minutes..."))
     
