@@ -9,6 +9,7 @@ library("wesanderson")
 library("Rtsne")
 library("corpus")
 library("scales")
+library("uchardet")
 library("shiny")
 
 # Global options

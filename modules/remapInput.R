@@ -108,8 +108,9 @@ remapInputFunction <- function(input, output, session, csv) {
     colnames(noEmptyCols) <- sapply(1:length(colnames(noEmptyCols)),
                                     function(i)
                                       substring(
-                                        paste(i, ". ", colnames(noEmptyCols)[i], sep = "")
-                                      , 1, input$truncateHeader)
+                                        paste(i, ". ", colnames(noEmptyCols)[i], sep = ""), 
+                                        1, 
+                                        input$truncateHeader)
                                     )
     noEmptyCols
   })

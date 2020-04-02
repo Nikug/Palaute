@@ -39,18 +39,24 @@
        need(input$file, message = "There is no file")
        )
      tryCatch({
-       read.csv(file()$datapath,
+       fileEncoding <- detect_file_enc(file()$datapath)
+       csv <- read.csv(file()$datapath,
                 sep = substring(input$delimiter, 1, 1),
                 header = input$header,
-                encoding = "UTF-8",
+                encoding = fileEncoding,
                 check.names = FALSE)
+       csv
      },
      error = function(e) {
+       removeUI(selector = "#remapNumControls > ", multiple = TRUE)
+       removeUI(selector = "#remapTextControls > ", multiple = TRUE)
        validate("File is in incorrect format")
      },
      warning = function(w) {
+       removeUI(selector = "#remapNumControls > ", multiple = TRUE)
+       removeUI(selector = "#remapTextControls > ", multiple = TRUE)
        validate("There was an issue with reading the file")
-       # Add removing remapping elements here
+       
      })
    })
    
