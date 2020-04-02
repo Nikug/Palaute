@@ -48,13 +48,11 @@
        csv
      },
      error = function(e) {
-       removeUI(selector = "#remapNumControls > ", multiple = TRUE)
-       removeUI(selector = "#remapTextControls > ", multiple = TRUE)
+       clearMappingControls()
        validate("File is in incorrect format")
      },
      warning = function(w) {
-       removeUI(selector = "#remapNumControls > ", multiple = TRUE)
-       removeUI(selector = "#remapTextControls > ", multiple = TRUE)
+       clearMappingControls()
        validate("There was an issue with reading the file")
        
      })

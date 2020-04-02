@@ -11,7 +11,10 @@ DefaultRemap <- list(
   maxInputRows = 1000000,
   factorDetectThreshold = 7,
   
-  prevalenceCovariates = 2
+  prevalenceCovariates = 2,
+  
+  automaticBuildLimit = 500,
+  progressbarUpdateInterval = 100
 )
 
 Types <- list(
@@ -29,9 +32,6 @@ remapInput <- function(id) {
       column(width = 2,
         tags$h3("Input file")
       ),
-      column(width = 2,
-        checkboxInput(inputId = ns("hideInput"), label = "Hide", value = FALSE)
-      ),
       column(width = 3,
         numericInput(inputId = ns("inputRows"), label = "Show rows",
                      min = DefaultRemap$minInputRows,
@@ -43,6 +43,9 @@ remapInput <- function(id) {
                           min = DefaultRemap$minTruncateHeader,
                           max = DefaultRemap$maxTruncateHeader,
                           value = DefaultRemap$truncateHeader)
+      ),
+      column(width = 2, offset = 2,
+        checkboxInput(inputId = ns("hideInput"), label = "Hide", value = FALSE)
       )
     ),
     conditionalPanel(condition = "input.hideInput == false", ns = ns,
@@ -56,7 +59,7 @@ remapInput <- function(id) {
       column(width = 2,
         tags$h3("Remap")
       ),
-      column(width = 2,
+      column(width = 2, offset = 8,
         checkboxInput(inputId = ns("hideControls"), label =  "Hide", value = FALSE)       
       )
     ),
@@ -80,7 +83,9 @@ remapInput <- function(id) {
         tags$h3("Mapped file")
       ),
       column(width = 2,
-        checkboxInput(inputId = ns("hideOutput"), label = "Hide", value = FALSE)       
+        checkboxInput(inputId = ns("build"),
+                      label = "Build the mapped file",
+                      value = TRUE)
       ),
       column(width = 3,
       numericInput(inputId = ns("outputRows"), label = "Show rows",
@@ -88,9 +93,12 @@ remapInput <- function(id) {
                    max = DefaultRemap$maxInputRows,
                    value = DefaultRemap$inputRows)
       ),
-      column(width = 2, offset = 2,
+      column(width = 2,
         downloadButton(outputId = ns("download"), label = "Download as CSV")
-      ) 
+      ),
+      column(width = 2, offset = 1,
+        checkboxInput(inputId = ns("hideOutput"), label = "Hide", value = FALSE)     
+      )
     ),
     conditionalPanel(condition = "input.hideOutput == false", ns = ns,
       div(class = "small, table-responsive",
@@ -101,6 +109,8 @@ remapInput <- function(id) {
 }
 
 remapInputFunction <- function(input, output, session, csv) {
+  buildr <- reactiveVal(TRUE)
+  
   # Update dataset
   datar <- reactive({
     data <- csv()
@@ -113,6 +123,18 @@ remapInputFunction <- function(input, output, session, csv) {
                                         input$truncateHeader)
                                     )
     noEmptyCols
+  })
+  
+  observeEvent(datar(), {
+    data <- datar()
+    if(nrow(data) > DefaultRemap$automaticBuildLimit) {
+      updateCheckboxInput(session, inputId = "build", value = FALSE)
+      buildr(FALSE)
+    }
+  })
+  
+  observeEvent(input$build, {
+    buildr(input$build)
   })
   
   # Input table
@@ -135,6 +157,7 @@ remapInputFunction <- function(input, output, session, csv) {
     data <- datar()
     names <- colnames(data)
     inputNames <- lapply(1:length(names), function(i) paste0("mapDropdown", i))
+    inputNames
   })
   
   # Reactive inputs
@@ -142,12 +165,12 @@ remapInputFunction <- function(input, output, session, csv) {
     inputNames <- remapInputNamesr()
     inputs <- list()
     inputs <- lapply(inputNames, function(inputName) paste0(inputs, input[[inputName]]))
+    inputs
   })
   
   # Create remapping components
   observeEvent(remapInputNamesr(), {
-    removeUI(selector = "#remapNumControls > ", multiple = TRUE)
-    removeUI(selector = "#remapTextControls > ", multiple = TRUE)
+    clearMappingControls()
     
     data <- datar()
     
@@ -210,15 +233,17 @@ remapInputFunction <- function(input, output, session, csv) {
   # Mapped file
   remapData <- reactive({
     mappings <- remapInputsr()
-    data <- datar()
+    data <- isolate(datar())
+    dataRows <- nrow(data)
     
     validate(
       need(input$outputRows >= DefaultRemap$minInputRows,
            message = paste("Need atleast", DefaultRemap$minInputRows,"rows")),
       need(length(mappings) > 0,
            message = "Mappings have not loaded yet"),
-      need(nrow(data) > 0,
-           message = "There is no data")
+      need(dataRows > 0,
+           message = "There is no data"),
+      need(buildr(), message = "You need to build the data")
     )
     
     
@@ -235,15 +260,29 @@ remapInputFunction <- function(input, output, session, csv) {
       dfnames <- c(dfnames, sapply(1:pres, function(i) paste0("prevalenceCovariates", i)))
     }
     
-    mappedMatrix <- matrix(nrow = (nrow(data) * documents), ncol = length(dfnames))
+    mappedMatrix <- matrix(nrow = (dataRows * documents), ncol = length(dfnames))
     
     validate(
       need(nrow(mappedMatrix) > 0, message = "There is no data")
     )
     
+    indicateProgress <- dataRows > DefaultRemap$automaticBuildLimit
+    if(indicateProgress) {
+      progress <- shiny::Progress$new()
+      on.exit(progress$close())
+      progress$set(0, message = "Building the mapped data: ")
+      increment <- DefaultRemap$progressbarUpdateInterval / dataRows
+    }
+    
     # Create the new data frame
     iter <- 1
-    for(r in 1:nrow(data)) {
+    for(r in 1:dataRows) {
+      if(indicateProgress) {
+        if(r %% DefaultRemap$progressbarUpdateInterval == 0) {
+          progress$inc(increment, detail = paste0("Document: ", r, "/", dataRows))
+        }
+      }
+      
       dataRow <- data[r, ]
       docs <- c()
       preCovs <- c()
@@ -304,5 +343,9 @@ remapInputFunction <- function(input, output, session, csv) {
   
   # Return value
   return(remapData)
+}
 
+clearMappingControls <- function() {
+  removeUI(selector = "#remapNumControls > ", multiple = TRUE)
+  removeUI(selector = "#remapTextControls > ", multiple = TRUE)
 }
