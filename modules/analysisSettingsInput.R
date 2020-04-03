@@ -120,12 +120,15 @@ analysisSettingsFunction <- function(input, output, session, datar) {
       text <- paste("Data language: ", names(Languages[Languages == input$language]),
                     "\nTopic count: ", ifelse(Default$calculateTopics, "calculate", Default$topicCount),
                     "\nSample: ", ifelse(Default$useSampling, Default$sampleSize, "all"),
-                    "\nMax iterations: ", Default$maxIters)
+                    "\nMax iterations: ", Default$maxIters
+                    )
     } else {
       text <- paste("Data language: ", names(Languages[Languages == input$language]),
                     "\nTopic count: ", ifelse(input$calculateTopics, "calculate", input$topicCount),
                     "\nSample: ", ifelse(input$useSampling, input$sampleSize, "all"),
-                    "\nMax iterations: ", input$maxIterations)
+                    "\nMax iterations: ", input$maxIterations,
+                    ifelse(input$calculateTopics, "\nWarning! Calculating topic count takes a lot of time", "")
+                    )
     }
   })
   
