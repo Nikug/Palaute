@@ -220,7 +220,10 @@ sentimentAnalysis <- function(documents, language) {
   } else {
     nrcVector <- get_nrc_sentiment(documentVector, language = syuzhetLanguage(language))
   }
-  
+  return(nrcVector)
+}
+ 
+ggplottableSentimentFormat <- function(nrcVector) {
   # Make ggplottable data frame
   emotionDataframe <- data.frame(t(nrcVector[, 1:8]))
   sentimentDataframe <- data.frame(t(nrcVector[, 9:10]))
@@ -234,14 +237,6 @@ sentimentAnalysis <- function(documents, language) {
   names(emotionSumDataframe)[1] <- "percentage"
   emotionSumDataframe <- cbind("emotion" = rownames(emotionSumDataframe), emotionSumDataframe)
   rownames(emotionSumDataframe) <- NULL
-  
-  splittedDocuments <- strsplit(as.character(documents), "\n\n", fixed = TRUE)
-  if(length(splittedDocuments) == 0) {
-    documentCount = 0
-  } else {
-    documentCount <- length(splittedDocuments[[1]])
-  }
-  emotionSumDataframe <- cbind(emotionSumDataframe, "documentCount" = documentCount)
   
   return(emotionSumDataframe)
 }

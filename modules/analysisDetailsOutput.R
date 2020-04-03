@@ -67,18 +67,20 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
     
     lapply(1:model$settings$dim$K, function(topic) {
       # Generate UI
+      topicSentiment <- ggplottableSentimentFormat(results$topicSentiment[[topic]])
+      
       hide <- input[[paste0("hideTopic", topic)]]
       ui <- generateUI(topic, model, results$topicSentiment[[topic]], session$ns, input, hide)
       insertUI(selector = "#topics", where = "beforeEnd", ui = ui)
       
       # Sentiment
       outputSentiment <- paste0("sentiment", topic)
-      sentiment <- results$topicSentiment[[topic]][9:10, ]
+      sentiment <- topicSentiment[9:10, ]
       
       # Outputs
       output[[outputSentiment]] <- renderPlot({
         validate(
-          need(sum(sentiment$documentCount) > 0, message = "This topic has no exclusive documents"),
+          need(nrow(results$topicSentiment[[topic]]) > 0, message = "This topic has no exclusive documents"),
           need(!is.na(sentiment$percentage), message = "Sentiment was not identified")
         )
         
@@ -126,12 +128,12 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
     
     lapply(1:model$settings$dim$K, function(topic) {
       outputEmotions <- paste0("emotion", topic)
-      emotions <- results$topicSentiment[[topic]][1:8, ]
+      emotions <- ggplottableSentimentFormat(results$topicSentiment[[topic]])[1:8, ]
       
       
       output[[outputEmotions]] <- renderPlot({
         validate(
-          need(sum(emotions$documentCount) > 0, message = "This topic has no exclusive documents"),
+          need(nrow(results$topicSentiment[[topic]]) > 0, message = "This topic has no exclusive documents"),
           need(!is.na(emotions$percentage), message = "No emotions were identified")
         )
         
@@ -189,7 +191,7 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
 
 generateUI <- function(topic, model, sentiment, ns, input, hide) {
   topicProportion <- sum(model$theta[, topic] / model$settings$dim$N)
-  documentCount <- sentiment$documentCount[1]
+  documentCount <- nrow(sentiment)
   ui <- tagList(
     wellPanel(
       fluidRow(

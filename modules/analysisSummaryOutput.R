@@ -190,12 +190,13 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
     colorPalette <- rev(wes_palette("Zissou1", 10, type = "continuous"))
     
     topicCount <- model$settings$dim$K
+    topicSentiments <- lapply(results$topicSentiment, ggplottableSentimentFormat)
 
     distanceMatrix <- topicDistances(exp(model$beta$logbeta[[1]]))
     distanceMatrix <- cbind(distanceMatrix, "size" = sapply(1:topicCount,
                                                             function(i) sum(model$theta[, i]) / model$settings$dim$N))
     distanceMatrix <- cbind(distanceMatrix, "topic" = c(1:topicCount))
-    distanceMatrix <- cbind(distanceMatrix, "sentiment" = sapply(results$topicSentiment, function(e) e$percentage[10]))
+    distanceMatrix <- cbind(distanceMatrix, "sentiment" = sapply(topicSentiments, function(s) s$percentage[10]))
     
     summaryPlot <- ggplot(data = distanceMatrix) +
       geom_point(aes(
@@ -244,7 +245,7 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
     )
     
     results <- resultsr()
-    emotion <- results$sentiment[1:8, ]
+    emotion <- ggplottableSentimentFormat(results$sentiment)[1:8, ]
     
     validate(
       need(!is.na(emotion$percentage), message = "No emotions were identified")
@@ -264,7 +265,7 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
 
     
     results <- resultsr()
-    sentiment <- results$sentiment[9:10, ]
+    sentiment <- ggplottableSentimentFormat(results$sentiment)[9:10, ]
     
     validate(
       need(!is.na(sentiment$percentage), message = "Sentiment was not identified")
