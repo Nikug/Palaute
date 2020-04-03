@@ -7,7 +7,28 @@ STM <- list(
 )
 
 AnalysisSettings <- list(
-  "updateProgressStep" = 2
+  "updateProgressStep" = 2,
+  "useStemmedFinnish" = TRUE
+)
+
+loadStemmedNRC <- function() {
+  lexicon <- read.csv("data/stemmedFinnishNRC.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+  lexicon
+}
+
+stemmedFinnishNRCLexicon <- loadStemmedNRC()
+
+nrcColumnOrder <- c(
+  "anger",
+  "anticipation",
+  "disgust",
+  "fear",
+  "joy",
+  "sadness",
+  "surprise",
+  "trust",
+  "negative",
+  "positive"
 )
 
 sampleDocuments <- function(data, sampleSize) {
@@ -184,7 +205,26 @@ topicModelAnalysis <- function(data, settings) {
 sentimentAnalysis <- function(documents, language) {
   # Analysis
   documentVector <- get_sentences(paste(documents, collapse = "\n"))
-  nrcVector <- get_nrc_sentiment(documentVector, language = syuzhetLanguage(language))
+  
+  if(language == "fi" & AnalysisSettings$useStemmedFinnish) {
+    stems <- text_tokens(documentVector, stemmer = syuzhetLanguage(language))
+    stems <- sapply(stems, paste, collapse = " ")
+    wordList <- strsplit(tolower(stems), "\\s|[[:punct:]]+")
+
+    nrcData <- lapply(wordList,
+                      get_nrc_values,
+                      lexicon = stemmedFinnishNRCLexicon)
+    
+    nrcVector <- as.data.frame(do.call(rbind, nrcData), stringsAsFactors = FALSE)
+    nrcVector <- nrcVector[, nrcColumnOrder]
+  } else {
+    nrcVector <- get_nrc_sentiment(documentVector, language = syuzhetLanguage(language))
+  }
+  
+  print(paste("Total identified emotions:",
+              sum(nrcVector[, 1:8]),
+              "Total identified sentiment:",
+              sum(nrcVector[, 9:10])))
   
   # Make ggplottable data frame
   emotionDataframe <- data.frame(t(nrcVector[, 1:8]))
