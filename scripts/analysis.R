@@ -185,7 +185,7 @@ topicModelAnalysis <- function(data, settings) {
       progress$inc(iterations / settings$maxIters,
                    detail = paste0("Iteration: ", settings$maxIters - i, "/", settings$maxIters,
                                    "\nEstimated time left: ", timeDifference(startTime, endTime, i),
-                                   "\nRelative change: ", sprintf("%.2e", change), " Target: ",
+                                   "\nRelative change: ", sprintf("%.2e", change), " Threshold: ",
                                    sprintf("%.0e", model$settings$convergence$em.converge.thresh)
                                    ))
       
@@ -220,11 +220,6 @@ sentimentAnalysis <- function(documents, language) {
   } else {
     nrcVector <- get_nrc_sentiment(documentVector, language = syuzhetLanguage(language))
   }
-  
-  print(paste("Total identified emotions:",
-              sum(nrcVector[, 1:8]),
-              "Total identified sentiment:",
-              sum(nrcVector[, 9:10])))
   
   # Make ggplottable data frame
   emotionDataframe <- data.frame(t(nrcVector[, 1:8]))

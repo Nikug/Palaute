@@ -16,8 +16,13 @@ analysisSummaryOutput <- function(id) {
       column(width = 6,
         tags$h2("Analysis statistics"),
         verbatimTextOutput(outputId = ns("statistics"))
+      ),
+      column(width = 6,
+        tags$h2("Model convergence"),
+        plotOutput(outputId = ns("convergence"))       
       )
     ),
+    tags$hr(),
     tags$h2("Topic analysis summary"),
     fluidRow(
       column(width = 6, align = "left",
@@ -62,17 +67,51 @@ analysisSummaryOutput <- function(id) {
 
 analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
   output$statistics <- renderText({
-    validate(need(resultsr(), message = "Run analysis to see the results"))
+    validate(
+      need(resultsr(), message = "Run analysis to see the results")
+    )
     
     results <- resultsr()
     model <- results$model
+    change <- 0
+    if(length(model$convergence$bound) > 1) {
+      last <- length(model$convergence$bound)
+      change <- (model$convergence$bound[last] - model$convergence$bound[last - 1]) / abs(model$convergence$bound[last - 1])
+    }
+    
     text <- paste0(
       ifelse(model$convergence$converged, "Model Converged!", "Model did not converge, results might be inaccurate."),
       "\nTopics: ", model$settings$dim$K,
-      "\nIterations: ", model$convergence$its, "/", model$settings$convergence$max.em.its,
-      " Elapsed time: ", round(model$time, 1), "s",
+      "\nIterations: ", model$convergence$its, "/", results$settings$maxIters,
+      "\nLast relative change: ", sprintf("%.2e", change),
+      " Convergence threshold: ", sprintf("%.0e", model$settings$convergence$em.converge.thresh),
       "\nDocuments in the model after preprocessing: ", model$settings$dim$N
       )
+  })
+  
+  # Model convergence graph
+  output$convergence <- renderPlot({
+    validate(
+      need(resultsr(), message = "Run analysis to see the results")
+    )
+    
+    results <- resultsr()
+    convergence <- as.data.frame(results$model$convergence)
+    
+    convergencePlot <- ggplot(data = convergence) + 
+      geom_line(
+        aes(x = seq_along(bound), y = bound)
+      ) +
+      theme(
+        legend.position = "none",
+        aspect.ratio = 0.5,
+        text = element_text(size = PlotSettings$textSize),
+        axis.text = element_text(size = PlotSettings$axisSize),
+        plot.subtitle = element_text(size = PlotSettings$subtitleSize)
+      ) + 
+      ggtitle("Model convergence") + 
+      xlab("Iteration") + ylab("Bounds")
+    convergencePlot
   })
   
   # Document topic graph

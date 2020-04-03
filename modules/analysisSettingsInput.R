@@ -150,6 +150,8 @@ analysisSettingsFunction <- function(input, output, session, datar) {
         need(is.numeric(input$rangeStart), message = "Search range start is not numeric"),
         need(is.numeric(input$rangeEnd), message = "Search range end is not numeric")
         )
+      
+      
       settings$topicCount <- clamp(input$topicCount, Default$topicCountMin, Default$topicCountMax)
       settings$maxIters <- clamp(input$maxIterations, Default$maxItersMin, Default$maxItersMax)
       settings$sampleSize <- clamp(input$sampleSize, Default$sampleSizeMin, Default$sampleSizeMax)

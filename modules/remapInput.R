@@ -29,8 +29,8 @@ remapInput <- function(id) {
   
   tagList(
     fluidRow(
-      column(width = 2,
-        tags$h3("Input file")
+      column(width = 3,
+        tags$h3("Input data structure")
       ),
       column(width = 3,
         numericInput(inputId = ns("inputRows"), label = "Show rows",
@@ -44,7 +44,7 @@ remapInput <- function(id) {
                           max = DefaultRemap$maxTruncateHeader,
                           value = DefaultRemap$truncateHeader)
       ),
-      column(width = 2, offset = 2,
+      column(width = 2, offset = 1,
         checkboxInput(inputId = ns("hideInput"), label = "Hide", value = FALSE)
       )
     ),
@@ -56,15 +56,19 @@ remapInput <- function(id) {
     
     tags$hr(),
     fluidRow(
-      column(width = 2,
-        tags$h3("Remap")
+      column(width = 3,
+        tags$h3("Select column mapping")
       ),
-      column(width = 2, offset = 8,
+      column(width = 2, offset = 7,
         checkboxInput(inputId = ns("hideControls"), label =  "Hide", value = FALSE)       
       )
     ),
     conditionalPanel(condition = "input.hideControls == false", ns = ns,
-      
+      fluidRow(
+        column(width = 12,
+          tags$p("Select how each column is used in the topic model analysis")       
+        )
+      ),
       fluidRow(
         column(width = 6,
           tags$h3("Text"),
@@ -79,8 +83,8 @@ remapInput <- function(id) {
     
     tags$hr(),
     fluidRow(
-      column(width = 2,
-        tags$h3("Mapped file")
+      column(width = 3,
+        tags$h3("Output data structure")
       ),
       column(width = 2,
         checkboxInput(inputId = ns("build"),
@@ -96,7 +100,7 @@ remapInput <- function(id) {
       column(width = 2,
         downloadButton(outputId = ns("download"), label = "Download as CSV")
       ),
-      column(width = 2, offset = 1,
+      column(width = 2,
         checkboxInput(inputId = ns("hideOutput"), label = "Hide", value = FALSE)     
       )
     ),

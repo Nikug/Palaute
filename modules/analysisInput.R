@@ -106,7 +106,7 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
     on.exit(mainProgress$close())
     mainProgress$set(message = "Status:", value = 0)
     
-    settings <- settingsr()
+    settings <- reactiveValuesToList(settingsr())
     
     mainProgress$inc(0, detail = "Calculating topic model")
     model <- modelr()
@@ -121,7 +121,8 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
     analysisResults <- list("model" = model, 
                             "sentiment" = sentimentSummary,
                             "topicSentiment" = topicSentiments,
-                            "data" = analysisData)
+                            "data" = analysisData,
+                            "settings" = settings)
 
     analysis$results <- analysisResults
     
