@@ -61,7 +61,9 @@ analysisSummaryOutput <- function(id) {
       column(width = 6,
              plotOutput(outputId = ns("sentimentSummary"), width = PlotSettings$barPlotWidth)
       )
-    )
+    ),
+    br(),
+    br()
   )
 }
 

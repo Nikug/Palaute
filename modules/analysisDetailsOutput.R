@@ -4,7 +4,8 @@ DetailSettings <- list(
   "maxKeywords" = 1000,
   "documents" = 2,
   "minDocuments" = 0,
-  "maxDocuments" = 1000
+  "maxDocuments" = 1000,
+  "sortEmotions" = TRUE
 )
 
 analysisDetailsOutput <- function(id) {
@@ -18,7 +19,7 @@ analysisDetailsOutput <- function(id) {
             tags$h2("Filter"),
             checkboxInput(inputId = ns("orderEmotions"),
                           label = "Sort emotion analysis",
-                          value = FALSE
+                          value = DetailSettings$sortEmotions
                           ),
             numericInput(inputId = ns("numberOfKeywords"),
                          label = "Number of keywords",
@@ -27,7 +28,7 @@ analysisDetailsOutput <- function(id) {
                          max = DetailSettings$maxKeywords
                          ),
             numericInput(inputId = ns("showDocuments"),
-                         label = "Show top documents",
+                         label = "Number of top documents",
                          value = DetailSettings$documents, 
                          min = DetailSettings$minDocuments,
                          max = DetailSettings$maxDocuments
@@ -233,7 +234,7 @@ generateUI <- function(topic, model, sentiment, ns, input, hide) {
           conditionalPanel(condition = "input.hideEmotions == false", ns = ns,
             column(width= 6,
               wellPanel(
-                tags$h3("Top emotions"),
+                tags$h3("Emotions"),
                 plotOutput(outputId = ns(paste0("emotion", topic)))
               )
             )

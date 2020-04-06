@@ -10,7 +10,35 @@ helpUI <- function(id) {
         tags$h1("About"),
         tags$p("The source code for this project can be found in:"),
         tags$a("https://github.com/Nikug/course-analysis", href = "https://github.com/Nikug/course-analysis"),
-        tags$hr(),
+        br(),
+        br(),
+        tags$p("This artefact is part of a master's thesis. The thesis can be found from:"),
+        tags$a("A link to the thesis", href = "#"),
+        br(),
+        br(),
+        tags$p("This software uses a combination of topic modeling and sentiment/emotion analysis in order to
+               analyze"),
+        tags$p("Topic modeling is done using Structural topic model (STM) algorithm by Roberts et al. (2013).
+               More information about the algorithm can be found in their article,
+               the vignette for the R package and their website:"),
+        tags$a("STM Journal article",
+               href = "https://scholar.princeton.edu/files/bstewart/files/stmnips2013.pdf"),
+        br(),
+        tags$a("Structural topic model R package vignette",
+               href = "https://cran.r-project.org/web/packages/stm/vignettes/stmVignette.pdf"),
+        br(),
+        tags$a("https://www.structuraltopicmodel.com/", href = "https://www.structuraltopicmodel.com/"),
+        br(),
+        br(),
+        tags$p("Sentiment and emotion analysis is done using Syuzhet R package by Jockers (2015)
+               using NRC emotion lexicon by Mohammad & Turney (2013):"),
+        tags$a("https://github.com/mjockers/syuzhet", href = "https://github.com/mjockers/syuzhet"),
+        br(),
+        tags$a("NRC Journal article", href = "https://arxiv.org/pdf/1308.6242.pdf"),
+        br(),
+        tags$a("NRC website", href = "https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm"),
+        hr(),
+        br(),
         tags$h1("How to use"),
         tags$p("The program has a following workflow:"),
         tags$li("Upload a .csv file"),
@@ -60,7 +88,7 @@ helpUI <- function(id) {
                      significantly slows down the algorithm and they should be only used if you know what you are doing.
                      Calculating the amount of topics does not support topic covariates, and they are silently not used
                      when the option to calculate the amount of topics is selected."),
-             tags$li(tags$strong("Don't include"), "These columns are excluded from the output data")
+             tags$li(tags$strong("Don't include"), "These columns are excluded from the output data.")
              ),
       br(),
       tags$h3("Analysis options"),
@@ -97,14 +125,33 @@ helpUI <- function(id) {
       hr(),
       br(),
       tags$h3("Summary"),
+      tags$p("Summary view contains information about the topic model and different graphs about the results."),
       br(),
       hr(),
       br(),
       tags$h3("Details"),
+      tags$p("Details view contains information about individual topics. There are:"),
+      tags$li("Topic keywords using four different methods."),
+      tags$li("Example documents"),
+      tags$li("Topic sentiment"),
+      tags$li("Topic emotions"),
+      br(),
+      br(),
+      tags$p("Each of these panels can be hidden using the filter. In addition to that the emotions can be ordered to descending
+             order or alphabetical order using", tags$strong("Sort emotion analysis."), "The amount of shown keywords
+             can be controlled using", tags$strong("Number of keywords."), "Same can be done for the top documents
+             using", tags$strong("Number of top documents."), "Finally, each topic can be collapsed using the",
+             tags$strong("Hide"), "button."),
+      br(),
+      tags$p("Sentiment and emotions are calculated on exclusive documents. This means that a highest correlating topic
+             is selected for each document and the sentiment/emotion analysis is run solely on those documents.
+             The top documents are the documents with the highest correlation to the topic. These are not necessarily
+             the same documents that the sentiment/emotion analysis is performed on."),
       br(),
       hr(),
       br(),
       tags$h3("Help"),
+      tags$p("This page contains a short help."),
       br(),
       hr(),
       br()
