@@ -70,6 +70,12 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
                                   "\nThis can take minutes..."))
     
     result <- sentimentAnalysis(analysisData$meta$documents, settings$language)
+    
+    # Sentiment lexicon comparison
+    if(FALSE) {
+      sentimentAnalysisComparison(analysisData$meta$documents, settings$language)
+    }
+    
     result
   })
   

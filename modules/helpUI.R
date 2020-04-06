@@ -4,6 +4,9 @@ helpUI <- function(id) {
   tagList(
     fluidRow(
       column(width = 6, offset = 3,
+        tags$h1("Palaute"),
+        tags$p("Plot, Analyze, Learn And Understand Topic Emotions"),
+        br(),
         tags$h1("About"),
         tags$p("The source code for this project can be found in:"),
         tags$a("https://github.com/Nikug/course-analysis", href = "https://github.com/Nikug/course-analysis"),

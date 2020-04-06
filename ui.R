@@ -12,15 +12,15 @@ source("modules/analysisDetailsOutput.R")
 
 # Scripts
 source("scripts/analysis.R")
+source("scripts/sentimentLexiconComparison.R")
 
 ui <- tagList(
-  tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
-  ),
   navbarPage(theme = shinytheme("cosmo"),
-    title = "Topical",
+    title = "Palaute",
+    windowTitle = "Palaute",
     inverse = TRUE,
     position = ("fixed-top"),
+    selected = "Main",
     
     
     tabPanel(title = "Main",
@@ -51,6 +51,9 @@ ui <- tagList(
     ),
     tabPanel(title = "Help",
       helpUI(id = "helpUI")        
+    ),
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
     )
   )
 )

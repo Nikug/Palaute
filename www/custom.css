@@ -39,3 +39,7 @@ nav[role=navigation] {
   display: block;
   white-space: pre-line;
 }
+
+.text-info > pre {
+  font-family: "Courier New", Courier, monospace !important;
+}

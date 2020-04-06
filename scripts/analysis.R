@@ -158,8 +158,8 @@ topicModelAnalysis <- function(data, settings) {
     
     
     # Calculate best model as a max mean of semantic coherence and exclusivity
-    semanticCoherences <- rescale(sapply(allModels$semcoh, sum), to = c(0, 1))
-    exclusitivities <- rescale(sapply(allModels$exclusivity, sum), to = c(0, 1))
+    semanticCoherences <- scales::rescale(sapply(allModels$semcoh, sum), to = c(0, 1))
+    exclusitivities <- scales::rescale(sapply(allModels$exclusivity, sum), to = c(0, 1))
     model <- allModels$out[[which.max((semanticCoherences + exclusitivities) / 2)]]
 
   } else {
