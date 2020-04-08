@@ -1,16 +1,21 @@
 # Libraries
-library("dplyr")
-library("stm")
-library("syuzhet")
-library("LDAvis")
-library("ggplot2")
-library("proxy")
-library("wesanderson")
-library("Rtsne")
-library("corpus")
-library("scales")
-library("uchardet")
-library("shiny")
+Packages <- c("dplyr",
+              "stm",
+              "syuzhet",
+              "ggplot2",
+              "proxy",
+              "wesanderson",
+              "Rtsne",
+              "corpus",
+              "scales",
+              "uchardet",
+              "shiny")
+
+NewPackages <- Packages[!(Packages %in% installed.packages()[, "Package"])]
+if(length(NewPackages)) {
+  install.packages(NewPackages)
+}
+lapply(Packages, library, character.only = TRUE)
 
 # Global options
 options(
