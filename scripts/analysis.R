@@ -53,6 +53,12 @@ preprocessDocuments <- function(data, settings) {
                                          stem = FALSE)
   progress$inc(0.5, detail = paste0("Preparing documents",
                                     "\nThis can take minutes..."))
+  if(length(preprocessedDocuments$documents) == 0) {
+    showNotification(ui = "All documents were removed in preprocessing. Are you using non-text data as the documents?",
+                     type = "error",
+                     duration = 20)
+    validate("")
+  }
   preparedDocuments <- prepDocuments(preprocessedDocuments$documents,
                                      preprocessedDocuments$vocab,
                                      preprocessedDocuments$meta,

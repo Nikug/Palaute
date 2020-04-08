@@ -14,7 +14,7 @@ DefaultRemap <- list(
   prevalenceCovariates = 2,
   
   automaticBuildLimit = 500,
-  progressbarUpdateInterval = 100
+  progressbarUpdateInterval = 1000
 )
 
 Types <- list(
