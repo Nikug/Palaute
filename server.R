@@ -8,7 +8,7 @@ Packages <- c("dplyr",
               "Rtsne",
               "corpus",
               "scales",
-              "uchardet",
+              "readr",
               "shiny")
 
 NewPackages <- Packages[!(Packages %in% installed.packages()[, "Package"])]

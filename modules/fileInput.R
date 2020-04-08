@@ -39,11 +39,11 @@
        need(input$file, message = "There is no file")
        )
      tryCatch({
-       fileEncoding <- detect_file_enc(file()$datapath)
+       fileEncoding <- guess_encoding(file()$datapath, n_max = 1000)
        csv <- read.csv(file()$datapath,
                 sep = substring(input$delimiter, 1, 1),
                 header = input$header,
-                encoding = fileEncoding,
+                encoding = fileEncoding$encoding[1],
                 check.names = FALSE)
        csv
      },
