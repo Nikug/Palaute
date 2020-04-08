@@ -57,3 +57,4 @@ ui <- tagList(
     )
   )
 )
+ui

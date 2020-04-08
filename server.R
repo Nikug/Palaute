@@ -8,8 +8,7 @@ Packages <- c("dplyr",
               "Rtsne",
               "corpus",
               "scales",
-              "readr",
-              "shiny")
+              "readr")
 
 NewPackages <- Packages[!(Packages %in% installed.packages()[, "Package"])]
 if(length(NewPackages)) {
@@ -33,5 +32,5 @@ server <- function(input, output, session) {
   
   callModule(analysisSummaryOutputFunction, id = "analysisSummary", reactive({analysisResults$results}))
   callModule(analysisDetailsOutputFunction, id = "detailsSummary", reactive({analysisResults$results}))
-  
 }
+server
