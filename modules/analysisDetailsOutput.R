@@ -196,10 +196,15 @@ generateUI <- function(topic, model, sentiment, ns, input, hide) {
   ui <- tagList(
     wellPanel(
       fluidRow(
-        column(width = 10,
+        column(width = 2,
           tags$h3(paste("Topic", topic))
         ),
-        column(width = 2,
+        column(width = 3,
+          textInput(inputId = ns(paste0("topicName", topic)),
+                    label = "Topic name",
+                    placeholder = paste("Topic", topic))
+        ),
+        column(width = 2, offset = 5,
           checkboxInput(inputId = ns(paste0("hideTopic", topic)),
                         label = "Hide",
                         value = hide)

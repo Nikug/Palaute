@@ -139,6 +139,9 @@ helpUI <- function(id) {
       tags$li("Topic emotions"),
       br(),
       br(),
+      tags$p("Every topic can be named by the user using the", tags$strong("Topic name"), "text box. This has no
+             function other than it can make analysing the data easier when the interpreted topic names can be written down."),
+      br(),
       tags$p("Each of these panels can be hidden using the filter. In addition to that the emotions can be ordered to descending
              order or alphabetical order using", tags$strong("Sort emotion analysis."), "The amount of shown keywords
              can be controlled using", tags$strong("Number of keywords."), "Same can be done for the top documents
