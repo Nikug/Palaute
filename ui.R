@@ -26,8 +26,8 @@ ui <- tagList(
     tabPanel(title = "Main",
       fluidRow(
         column(width = 4,
-          div(class = "fixed",
-            wellPanel(class = "scaleWidth",
+          wellPanel(class = "fixed",
+            div(class = "scaleWidth",
               analysisSettingsInput(id = "analysisSettings"),
               analysisInput(id = "analysisInput")
             )

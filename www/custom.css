@@ -18,7 +18,11 @@ nav[role=navigation] {
   .fixed {
     z-index: 100;
     position: fixed;
-    width: inherit;
+    width: 30%;
+    top: 70px;
+    bottom: auto;
+    max-height: 90%;
+    overflow-y: auto;
   }
   
   .scaleWidth {

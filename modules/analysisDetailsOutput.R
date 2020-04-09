@@ -14,8 +14,8 @@ analysisDetailsOutput <- function(id) {
   tagList(
     fluidRow(
       column(width = 4,
-        div(class = "fixed",
-          wellPanel(class = "scaleWidth",
+        wellPanel(class = "fixed",
+          div(class = "scaleWidth",
             tags$h2("Filter"),
             checkboxInput(inputId = ns("orderEmotions"),
                           label = "Sort emotion analysis",
