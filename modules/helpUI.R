@@ -17,7 +17,7 @@ helpUI <- function(id) {
         br(),
         br(),
         tags$p("This software uses a combination of topic modeling and sentiment/emotion analysis in order to
-               analyze"),
+               analyze text data and find patterns in it."),
         tags$p("Topic modeling is done using Structural topic model (STM) algorithm by Roberts et al. (2013).
                More information about the algorithm can be found in their article,
                the vignette for the R package and their website:"),
