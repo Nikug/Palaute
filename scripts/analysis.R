@@ -32,7 +32,8 @@ nrcColumnOrder <- c(
 )
 
 sampleDocuments <- function(data, sampleSize) {
-  dataSample <- sample_n(data, sampleSize)
+  rows <- nrow(data)
+  dataSample <- sample_n(data, clamp(sampleSize, 1, rows))
   return(dataSample)
 }
 
@@ -136,6 +137,7 @@ topicModelAnalysis <- function(data, settings) {
       }
       
       startTime <- Sys.time()
+      
       arguments <- list(data$documents, data$vocab,
                     K = i,
                     max.em.its = settings$maxIters,
@@ -153,7 +155,16 @@ topicModelAnalysis <- function(data, settings) {
         models <- do.call(manyTopics, arguments)
       } else {
         capture.output(
-          models <- do.call(manyTopics, arguments)
+          tryCatch({
+            models <- do.call(manyTopics, arguments)
+          },
+          error = function(e) {
+            showNotification("Something went wrong with the structural topic model algorithm.
+                             Please change your analysis options",
+                             type = "error",
+                             duration = 20)
+            validate("")
+          })
         )
       }
       allModels$out <- rbind(allModels$out, models$out)

@@ -126,6 +126,8 @@ helpUI <- function(id) {
       br(),
       tags$h3("Summary"),
       tags$p("Summary view contains information about the topic model and different graphs about the results."),
+      tags$p(tags$strong("Topid distance map"), "and", tags$strong("Topic-document relation"), "graphs are interactive.
+             Clicking on the center of the points shows additional information in a box under the graph."),
       br(),
       hr(),
       br(),

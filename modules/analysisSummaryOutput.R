@@ -5,7 +5,10 @@ PlotSettings <- list(
   "subtitleSize" = 12,
   "plotHeight" = "700px",
   "plotWidth" = "100%",
-  "barPlotWidth" = "70%"
+  "barPlotWidth" = "70%",
+  
+  "clickThreshold" = 20,
+  "keyWords" = 5
 )
 
 analysisSummaryOutput <- function(id) {
@@ -26,30 +29,43 @@ analysisSummaryOutput <- function(id) {
     tags$h2("Topic analysis summary"),
     fluidRow(
       column(width = 6, align = "left",
-             plotOutput(outputId = ns("topicSummary"), width = PlotSettings$plotWidth, height = PlotSettings$plotHeight),
-             tags$p(class = "small", align = "center",
-                    "Each circle represents a topic",
-                    br(),
-                    "Circle size = Topic prevalence. Larger circles are more prevelant in the corpus",
-                    br(),
-                    "Colour = Topic sentiment (Grey means there is no sentiment)",
-                    br(),
-                    "Distance between the topics is calculated as the difference between the vocabulary used by a topic.
-                    Topics away from each other use different words, whereas close topics share more words"
-             )       
+        plotOutput(outputId = ns("topicSummary"),
+                   width = PlotSettings$plotWidth,
+                   height = PlotSettings$plotHeight,
+                   click = ns("summaryClick")),
+        uiOutput(outputId = ns("topicSummaryDetails")),
+        tags$p(class = "small", align = "center",
+               "Each circle represents a topic",
+               br(),
+               "Circle size = Topic prevalence. Larger circles are more prevelant in the corpus",
+               br(),
+               "Colour = Topic sentiment (Grey means there is no sentiment)",
+               br(),
+               "Distance between the topics is calculated as the difference between the vocabulary used by a topic.
+               Topics away from each other use different words, whereas close topics share more words",
+               br(),
+               "Clicking on the centers of the topics shows additional information. Clicking away from topics hides
+               the additional information box"
+        )       
       ),
       column(width = 6, align = "left",
-          plotOutput(outputId = ns("documentSummary"), width = PlotSettings$plotWidth, height = PlotSettings$plotHeight),
-          
-          tags$p(class = "small", align = "center",
-                 "Each circle represents a document",
-                 br(),
-                 "Circle size = Topic proportion of the document. Larger circles have higher proportion of them dedicated to one topic",
-                 br(),
-                 "Colour = Indicates the topic that has the highest proportion of the document",
-                 br(),
-                 "Topic labels are placed on the mathematical center of the topic's documents"
-          ) 
+        plotOutput(outputId = ns("documentSummary"),
+                   width = PlotSettings$plotWidth,
+                   height = PlotSettings$plotHeight,
+                   click = ns("documentClick")),
+        uiOutput(outputId = ns("documentSummaryClick")),
+        tags$p(class = "small", align = "center",
+               "Each circle represents a document",
+               br(),
+               "Circle size = Topic proportion of the document. Larger circles have higher proportion of them dedicated to one topic",
+               br(),
+               "Colour = Indicates the topic that has the highest proportion of the document",
+               br(),
+               "Topic labels are placed on the mathematical center of the topic's documents",
+               br(),
+               "Clicking on the centers of the documents shows that document and additional information.
+               Clicking away from documents hides the additional information box"
+        ) 
       )
     ),
     tags$hr(),
@@ -68,6 +84,47 @@ analysisSummaryOutput <- function(id) {
 }
 
 analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
+  topicDistancesr <- reactive({
+    validate(
+      need(resultsr(), message = FALSE)
+    )
+    results <- resultsr()
+    model <- results$model
+    
+    topicCount <- model$settings$dim$K
+    topicSentiments <- lapply(results$topicSentiment, ggplottableSentimentFormat)
+    
+    distanceMatrix <- topicDistances(exp(model$beta$logbeta[[1]]))
+    distanceMatrix <- cbind(distanceMatrix, "size" = sapply(1:topicCount,
+                                                            function(i) sum(model$theta[, i]) / model$settings$dim$N))
+    distanceMatrix <- cbind(distanceMatrix, "topic" = c(1:topicCount))
+    distanceMatrix <- cbind(distanceMatrix, "sentiment" = sapply(topicSentiments, function(s) s$percentage[10]))
+    distanceMatrix
+  })
+  
+  documentMapr <- reactive({
+    validate(
+      need(resultsr(), message = FALSE)
+    )
+    
+    results <- resultsr()
+    model <- results$model
+    topicCount <- model$settings$dim$K
+    perplexity <- floor(topicCount / 3 - 1)
+    reducedDimensions <- Rtsne(model$theta, k = 2,
+                               initial_dims = topicCount,
+                               perplexity = ifelse(perplexity < 1, 1, perplexity),
+                               max_iter = 500,
+                               verbose = Verbose,
+                               check_duplicates = FALSE)
+    reducedDimensionsDataframe <- data.frame(list("x" = reducedDimensions$Y[, 1],
+                                                  "y" = reducedDimensions$Y[, 2],
+                                                  "size" = sapply(1:model$settings$dim$N, function(i) max(model$theta[i, ])),
+                                                  "topic" = max.col(model$theta, ties.method = "first")
+    ))
+    reducedDimensionsDataframe
+  })
+  
   output$statistics <- renderText({
     validate(
       need(resultsr(), message = "Run analysis to see the results")
@@ -118,25 +175,18 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
   
   # Document topic graph
   output$documentSummary <- renderPlot({
-    validate(need(resultsr(), message = "Run analysis to see the results"))
+    validate(
+      need(documentMapr(), message = "Run analysis to see the results"),
+      need(resultsr(), message = FALSE)
+    )
+    
+    reducedDimensionsDataframe <- documentMapr()    
     
     results <- resultsr()
     model <- results$model
+    
     topicCount <- model$settings$dim$K
-    perplexity <- floor(topicCount / 3 - 1)
-    reducedDimensions <- Rtsne(model$theta, k = 2,
-                               initial_dims = topicCount,
-                               perplexity = ifelse(perplexity < 1, 1, perplexity),
-                               max_iter = 500,
-                               verbose = Verbose,
-                               check_duplicates = FALSE)
-
-    reducedDimensionsDataframe <- data.frame(list("x" = reducedDimensions$Y[, 1],
-                                                  "y" = reducedDimensions$Y[, 2],
-                                                  "size" = sapply(1:model$settings$dim$N, function(i) max(model$theta[i, ])),
-                                                  "topic" = max.col(model$theta, ties.method = "first")
-                                                  ))
-
+    
     centers <- sapply(1:topicCount,
                       function(i) c(mean(reducedDimensionsDataframe$x[reducedDimensionsDataframe$topic == i]),
                                     mean(reducedDimensionsDataframe$y[reducedDimensionsDataframe$topic == i])))
@@ -181,25 +231,77 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
     summaryPlot
   })
   
+  # Document summary click
+  output$documentSummaryClick <- renderUI({
+    validate(
+      need(documentMapr(), message = FALSE),
+      need(resultsr(), message = FALSE)
+    )
+    click <- input$documentClick
+    documentMap <- isolate(documentMapr())
+    results <- isolate(resultsr())
+    
+    closePoints <- nearPoints(documentMap, click,
+                              xvar = "x",
+                              yvar = "y",
+                              maxpoints = 1,
+                              threshold = PlotSettings$clickThreshold)
+    
+    if(nrow(closePoints) == 0) {
+      return(NULL)
+    }
+    index <- as.numeric(row.names(closePoints))
+    document <- as.character(results$data$meta$documents[index])
+    proportions <- results$model$theta[index, ]
+    names(proportions) <- c(1:length(proportions))
+    sortedProportions <- sort(proportions, decreasing = TRUE)
+    
+    textOut <- sapply(1:length(sortedProportions), function(i) {
+                        topicProportion <- sortedProportions[i]
+                        roundedProportion <- round(topicProportion * 100, 0)
+                        if(roundedProportion > 0) {
+                          tagList(
+                            tags$span(tags$strong("Topic", names(topicProportion)),
+                                   paste0(roundedProportion, "%",
+                                          ifelse(i == length(sortedProportions), "", ",")))
+                          )
+                        }
+                      })
+    
+    # Add checks
+    # Add topic proportions
+    # Pretty print the results
+    # Validate the results using very small document count vs. theta matrix
+    tagList(
+      fluidRow(
+        column(width = 8, offset = 2,
+          wellPanel(
+            tags$p(tags$strong("Document"), index),
+            tags$p(textOut),
+            tags$strong("Text:"),
+            tags$p(document)
+          )
+        )
+      )
+    )
+  })
+  
   # Topic distance graph
   output$topicSummary <- renderPlot({
-    validate(need(resultsr(), message = "Run analysis to see the results"))
+    validate(
+      need(resultsr(), message = "Run analysis to see the results"),
+      need(topicDistancesr(), message = "Run analysis to see the results")
+      )
     
     results <- resultsr()
     model <- results$model
     
+    topicCount <- model$settings$dim$K
+    distanceMatrix <- topicDistancesr()
+    
     margins <- 0.1
     colorPalette <- rev(wes_palette("Zissou1", 10, type = "continuous"))
-    
-    topicCount <- model$settings$dim$K
-    topicSentiments <- lapply(results$topicSentiment, ggplottableSentimentFormat)
-
-    distanceMatrix <- topicDistances(exp(model$beta$logbeta[[1]]))
-    distanceMatrix <- cbind(distanceMatrix, "size" = sapply(1:topicCount,
-                                                            function(i) sum(model$theta[, i]) / model$settings$dim$N))
-    distanceMatrix <- cbind(distanceMatrix, "topic" = c(1:topicCount))
-    distanceMatrix <- cbind(distanceMatrix, "sentiment" = sapply(topicSentiments, function(s) s$percentage[10]))
-    
+        
     summaryPlot <- ggplot(data = distanceMatrix) +
       geom_point(aes(
         x = x,
@@ -238,7 +340,63 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
       ggtitle("Topic distance map") + 
       labs(subtitle = "2D projection of topic distances based on the vocabulary used by the topics\n(structural topic model beta matrix)") +
       xlab("") + ylab("")
+    
     summaryPlot
+  })
+  
+  # Topic distance click
+  output$topicSummaryDetails <- renderUI({
+    validate(
+      need(topicDistancesr(), message = FALSE),
+      need(resultsr(), message = FALSE)
+    )
+    click <- input$summaryClick
+    distanceMatrix <- isolate(topicDistancesr())
+    results <- isolate(resultsr())
+    
+    closePoints <- nearPoints(distanceMatrix, click,
+                              xvar = "x",
+                              yvar = "y",
+                              maxpoints = 1,
+                              threshold = PlotSettings$clickThreshold)
+    
+    if(nrow(closePoints) == 0) {
+      return(NULL)
+    }
+    
+    model <- results$model
+    vocabularyLength <- length(model$vocab)
+    additionalInfo <- NULL
+    if(PlotSettings$keyWords > vocabularyLength) {
+      additionalInfo <- tagList(tags$p(class = "text-danger", tags$strong("Warning:"),
+                                       paste0("Vocabulary size is ", vocabularyLength, ", only showing ",
+                                              vocabularyLength, " keywords"))
+      )
+    }
+    
+    topicLabels <- labelTopics(model, n = clamp(PlotSettings$keyWords, 1, vocabularyLength))
+    topic <- closePoints$topic
+    textOut <- keywordsTextFormat(topicLabels, topic)
+    
+    sentiment <- "No sentiment"
+    if(!is.na(closePoints$sentiment)) {
+      sentiment <- paste0(round(closePoints$sentiment * 100, 0), "% positive")
+    }
+    
+    tagList(
+      fluidRow(
+        column(width = 8, offset = 2,
+          wellPanel(
+            tags$p(tags$strong(paste("Topic", topic)),
+                   "Proportion:", paste0(round(closePoints$size * 100, 0), "%")),
+            tags$p(tags$strong("Sentiment:"), sentiment),
+            tags$strong("Keywords:"),
+            textOut,
+            additionalInfo
+          )
+        )
+      )
+    )
   })
   
   output$emotionSummary <- renderPlot({
@@ -327,4 +485,3 @@ sentimentBarPlot <- function(data, orderData = TRUE, plotTitle = "Summary", plot
   
   return(sentimentPlot)
 }
-

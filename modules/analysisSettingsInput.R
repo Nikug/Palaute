@@ -9,7 +9,7 @@ Default <- list(
   
   topicCount = 6,
   topicCountMin = 3,
-  topicCountMax = 1000,
+  topicCountMax = 200,
   
   rangeStart = 4,
   rangeEnd = 25,
