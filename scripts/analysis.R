@@ -182,7 +182,18 @@ topicModelAnalysis <- function(data, settings) {
   } else {
     progress$inc(0, detail = paste0("Iteration: 0/", settings$maxIters))
     startTime <- Sys.time()
-    model <- createModel(data, settings, iterations = 1, prevalenceCovariateFormula, topicCovariateFormula)
+    
+    tryCatch({
+      model <- createModel(data, settings, iterations = 1, prevalenceCovariateFormula, topicCovariateFormula)
+    },
+    error = function(e) {
+      showNotification("Something went wrong with the structural topic model algorithm.
+                             Please change your analysis options",
+                       type = "error",
+                       duration = 20)
+      validate("")
+    })
+    
     endTime <- Sys.time()
     i <- settings$maxIters - model$convergence$its
     while(i > 0) {

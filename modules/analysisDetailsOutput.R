@@ -265,12 +265,18 @@ generateUI <- function(topic, model, sentiment, ns, input, hide) {
 }
 
 keywordsTextFormat <- function(labels, topic) {
-  ui <- tagList(
-    tags$p(tags$strong("Most probable:"), paste(labels$prob[topic, ], collapse = " ")),
-    tags$p(tags$strong("Frex:"), paste(labels$frex[topic, ], collapse = " ")),
-    tags$p(tags$strong("Lift:"), paste(labels$lift[topic, ], collapse = " ")),
-    tags$p(tags$strong("Score:"), paste(labels$score[topic, ], collapse = " "))
-  )
+  if("topics" %in% names(labels)) {
+    ui <- tagList(
+      tags$p(tags$strong("Topic words:"), paste(labels$topics[topic, ], collapse = " "))
+    )
+  } else {
+    ui <- tagList(
+      tags$p(tags$strong("Most probable:"), paste(labels$prob[topic, ], collapse = " ")),
+      tags$p(tags$strong("Frex:"), paste(labels$frex[topic, ], collapse = " ")),
+      tags$p(tags$strong("Lift:"), paste(labels$lift[topic, ], collapse = " ")),
+      tags$p(tags$strong("Score:"), paste(labels$score[topic, ], collapse = " "))
+    )
+  }
   
   return(ui)
 }

@@ -267,11 +267,7 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
                           )
                         }
                       })
-    
-    # Add checks
-    # Add topic proportions
-    # Pretty print the results
-    # Validate the results using very small document count vs. theta matrix
+
     tagList(
       fluidRow(
         column(width = 8, offset = 2,
