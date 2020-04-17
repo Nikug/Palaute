@@ -100,7 +100,7 @@ iterateModel <- function(data, model, iterations, prevalenceCovariateFormula, to
 
 topicModelAnalysis <- function(data, settings) {
   
-  topicCovariates <- names(data$meta %>% select(starts_with("topicCovariates")))
+  topicCovariates <- names(data$meta %>% select(starts_with("contentCovariates")))
   
   topicCovariateFormula <- NULL
   if(length(topicCovariates) != 0) {

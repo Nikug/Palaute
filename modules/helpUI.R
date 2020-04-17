@@ -82,11 +82,11 @@ helpUI <- function(id) {
              tags$li(tags$strong("Document"), "These are the text documents that are used in the topic modeling algorithm"),
              tags$li(tags$strong("Prevalence covariate"), "This data is used as a covariate on the frequency on how often a topic
                      is discussed. There can be multiple prevalence covariates and they don't tend to slow down the algoritm"),
-             tags$li(tags$strong("Topic covariate"), "These affect how each topic is discussed.",
-                     tags$strong("There can be at a maximum only one topic covariate."),
-                     "If multiple topic covariates are selected, only the first one is used. Selecting a topic covariate
+             tags$li(tags$strong("Content covariate"), "These affect how each topic is discussed.",
+                     tags$strong("There can be at a maximum only one content covariate."),
+                     "If multiple content covariates are selected, only the first one is used. Selecting a content covariate
                      significantly slows down the algorithm and they should be only used if you know what you are doing.
-                     Calculating the amount of topics does not support topic covariates, and they are silently not used
+                     Calculating the amount of topics does not support content covariates, and they are silently not used
                      when the option to calculate the amount of topics is selected."),
              tags$li(tags$strong("Don't include"), "These columns are excluded from the output data.")
              ),

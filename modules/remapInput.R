@@ -20,7 +20,7 @@ DefaultRemap <- list(
 Types <- list(
   doc = "Document",
   pre = "Prevalence covariate",
-  top = "Topic covariate",
+  top = "Content covariate",
   don = "Don't include"
 )
 
@@ -214,7 +214,7 @@ remapInputFunction <- function(input, output, session, csv) {
                         label = NULL,
                         c("Document" = Types$doc,
                           "Prevalence covariate" = Types$pre,
-                          "Topic covariate" = Types$top,
+                          "Content covariate" = Types$top,
                           "Don't include" = Types$don),
                         selected = type
       )
@@ -258,7 +258,7 @@ remapInputFunction <- function(input, output, session, csv) {
     documents <- sum(mappings == Types$doc)
     
     if(tops > 0) {
-      dfnames <- c(dfnames, sapply(1:tops, function(i) paste0("topicCovariates", i)))
+      dfnames <- c(dfnames, sapply(1:tops, function(i) paste0("contentCovariates", i)))
     }
     if(pres > 0) {
       dfnames <- c(dfnames, sapply(1:pres, function(i) paste0("prevalenceCovariates", i)))
