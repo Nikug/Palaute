@@ -341,7 +341,7 @@ remapInputFunction <- function(input, output, session, csv) {
         need(data, message = "Nothing to download"),
         need(nrow(data) > 0, message = "Nothing to download")
       )
-      write.csv(data, file, row.names = FALSE, encoding = "UTF-8")
+      write.csv2(data, file, row.names = FALSE, fileEncoding = "UTF-8")
     }
   )
   
