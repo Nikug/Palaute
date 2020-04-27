@@ -128,6 +128,18 @@ helpUI <- function(id) {
       tags$p("Summary view contains information about the topic model and different graphs about the results."),
       tags$p(tags$strong("Topid distance map"), "and", tags$strong("Topic-document relation"), "graphs are interactive.
              Clicking on the center of the points shows additional information in a box under the graph."),
+      tags$p(tags$strong("Topic distance map"), "shows how different the topics are. Topics with similar vocabulary group together.
+             If two topics are very close to each other, it might indicate that there are too many topics and they should be
+             represented as a single topic. Note that the circle sizes are based on the topic proportion and they are relative
+             values. The overlap of two circles does not represent the amount of shared words."),
+      tags$p(tags$strong("Topic-document relation"), "shows how documents are divided to the topics. The circles are colored and
+             sized by their largest topic proportion. When documents are internally cohesive meaning they clearly belong to
+             individual topics, they tend to cluster together to represent the topic. In addition to that, documents that
+             share similar vocabulary tend to group together. So when no clear clusters emerge, it might mean that the document
+             topic proportions are divided among multiple topics evenly (which is fine when the documents contain multiple topics),
+             or that the topic count is incorrect. It is up to the user to test whether changing the topic count yields 
+             better results or not. For short documents clear clusters should emerge as the documents are short enough not to
+             contain a lot of differing information."),
       br(),
       hr(),
       br(),

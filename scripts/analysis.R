@@ -8,7 +8,7 @@ STM <- list(
 
 AnalysisSettings <- list(
   "updateProgressStep" = 2,
-  "useStemmedFinnish" = TRUE
+  "useStemmedFinnish" = FALSE
 )
 
 loadStemmedNRC <- function() {
