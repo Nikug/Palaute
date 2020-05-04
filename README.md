@@ -1,4 +1,5 @@
-# Palaute (Plot, Analyze, Learn And Understand Topic Emotions)
+# Palaute
+> Plot, Analyze, Learn And Understand Topic Emotions
 
 **Palaute** is an R Shiny application for analyzing text data. Text analysis is performed using
 structural topic model (STM) algorithm in combination with emotion and sentiment analysis.
