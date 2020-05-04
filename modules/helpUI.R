@@ -117,7 +117,10 @@ helpUI <- function(id) {
                      maximum mean of normalized values of model semantic coherence and exclusivity."),
              tags$li(tags$strong("maximum iterations"), "Selects the maximum amount of iterations the model is ran. 
                      It is possible for the model to converge before this limit is reached, but if the model does not
-                     converge, it is stopped after this amount of iterations."),
+                     converge, it is stopped after this amount of iterations. Some models only take 20 or so iterations to 
+                     converge, others take several hundreds. There isn't really a correct number, but if the model doesn't
+                     converge under 500 iterations, maybe some options should be tweaked, like the topic count or covariates.
+                     500 is the default number of iterations in the STM package, but it is explained to be arbitary."),
              tags$li(tags$strong("Start analysis"), "Starts performing the analysis. A progress bar shows up in the bottom-right
                      corner of the window while analysis is ongoing.")
              ),
