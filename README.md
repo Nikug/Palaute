@@ -12,6 +12,7 @@ Palaute was created as a part of my master's thesis. The thesis can be found [he
 Palaute requires some packages to run and the packages require all of their dependencies. The used packages are listed below:
 ```
 shiny
+shinythemes
 dplyr
 stm
 syuzhet
