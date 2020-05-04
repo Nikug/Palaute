@@ -23,3 +23,5 @@ corpus
 scales
 readr
 ```
+
+After installing above packages, you should be able to run the application from the R-studio. Open `app.R` in R-studio and select `Run App`.
