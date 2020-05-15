@@ -1,7 +1,7 @@
 # Mostly from: https://juanitorduz.github.io/dockerize-a-shinyapp/
 
-# BUILD: sudo docker build -t Palaute .
-# RUN: sudo docker run --rm -p 80:3838 Palaute
+# BUILD: sudo docker build -t palaute .
+# RUN: sudo docker run --rm -p 80:3838 palaute
 
 FROM rocker/shiny:3.6.3
 
