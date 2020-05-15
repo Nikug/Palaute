@@ -34,5 +34,5 @@ docker pull nikugronberg/palaute:latest
 ```
 and ran with:
 ```
-sudo docker run --rm -p 80:3838 palaute
+docker run --rm -p 80:3838 palaute
 ```
