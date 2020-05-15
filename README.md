@@ -26,3 +26,13 @@ readr
 ```
 
 After installing the above packages, you should be able to run the application from the R-studio. Open the file `app.R` in R-studio and select `Run App`.
+
+## Docker
+Docker image of the server can be downloaded with
+```
+docker pull nikugronberg/palaute:latest
+```
+and ran with:
+```
+sudo docker run --rm -p 80:3838 palaute
+```
