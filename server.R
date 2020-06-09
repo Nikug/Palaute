@@ -10,10 +10,6 @@ Packages <- c("dplyr",
               "scales",
               "readr")
 
-NewPackages <- Packages[!(Packages %in% installed.packages()[, "Package"])]
-if(length(NewPackages)) {
-  install.packages(NewPackages)
-}
 lapply(Packages, library, character.only = TRUE)
 
 # Global options
