@@ -187,12 +187,20 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
                                 texts = as.character(results$data$meta$documents),
                                 topics = topic,
                                 n = ifelse(documentCount > 0, documentCount, 1)
-                                )$docs
+                                )
+
+      proportions <- model$theta[unlist(documents$index), topic]
       
-      names(documents) <- paste0("Topic", topic)
+      documentsData <- data.frame("proportions" = proportions,
+                                  "document" = documents$docs[[1]],
+                                  "index" = documents$index[[1]]
+                                  )
+      
+      documentsData$proportions <- paste0(round(documentsData$proportions * 100, 0), "%")
+      names(documentsData) <- c("Topic proportion", paste0("Topic ", topic, " documents"), "Index")
       outputDocuments <- paste0("documents", topic)
-      output[[outputDocuments]] <- renderTable(rownames = TRUE, expr = {
-        documents
+      output[[outputDocuments]] <- renderTable(rownames = FALSE, expr = {
+        documentsData[, 1:2]
       })
     })
   })
