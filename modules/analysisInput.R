@@ -94,7 +94,7 @@ analysisInputFunction <- function(input, output, session, settingsr, datar) {
     progress$set(0, message = "Performing topic specific sentiment and emotion analysis: ")
     
     documentList <- topicDocuments(model, analysisData, settings)
-    topics <- length(documentList)
+    topics <- model$settings$dim$K
     topicSentiments <- vector(mode = "list", length = topics)
     for(i in 1:topics) {
       progress$inc(1 / topics,

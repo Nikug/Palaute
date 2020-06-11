@@ -98,7 +98,13 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
     distanceMatrix <- cbind(distanceMatrix, "size" = sapply(1:topicCount,
                                                             function(i) sum(model$theta[, i]) / model$settings$dim$N))
     distanceMatrix <- cbind(distanceMatrix, "topic" = c(1:topicCount))
-    distanceMatrix <- cbind(distanceMatrix, "sentiment" = sapply(topicSentiments, function(s) s$percentage[10]))
+    distanceMatrix <- cbind(distanceMatrix, "sentiment" = sapply(topicSentiments, function(s) {
+      if(is.null(s)) {
+        NA
+      } else {
+        s$percentage[10]
+      }
+    }))
     distanceMatrix
   })
   

@@ -231,7 +231,7 @@ generateUI <- function(topic, model, sentiment, ns, input, hide) {
           column(width = 12,
             div(class = "text-info",
               tags$p(paste0("Topic proportion ", round(topicProportion * 100, 0), "%")),
-              tags$p(paste0(documentCount, " exclusive documents used in sentiment and emotion analysis"))
+              tags$p(paste0(ifelse(is.null(documentCount), 0, documentCount), " exclusive documents used in sentiment and emotion analysis"))
             )
           )
         ),

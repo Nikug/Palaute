@@ -232,7 +232,8 @@ topicModelAnalysis <- function(data, settings) {
 
 sentimentAnalysis <- function(documents, language) {
   # Analysis
-  documentVector <- get_sentences(paste(documents, collapse = "\n"))
+  documentVector <- as.character(documents)
+  
   
   if(language == "fi" & AnalysisSettings$useStemmedFinnish) {
     stems <- text_tokens(documentVector, stemmer = syuzhetLanguage(language))
@@ -246,13 +247,20 @@ sentimentAnalysis <- function(documents, language) {
     nrcVector <- as.data.frame(do.call(rbind, nrcData), stringsAsFactors = FALSE)
     nrcVector <- nrcVector[, nrcColumnOrder]
   } else {
-    nrcVector <- get_nrc_sentiment(documentVector, language = syuzhetLanguage(language))
+    if(identical(documentVector, character(0))) {
+      nrcVector <- NA
+    } else {
+      nrcVector <- get_nrc_sentiment(documentVector, language = syuzhetLanguage(language))
+    }
   }
   return(nrcVector)
 }
  
 ggplottableSentimentFormat <- function(nrcVector) {
   # Make ggplottable data frame
+  if(all(is.na(nrcVector))) {
+    return(NULL)
+  }
   emotionDataframe <- data.frame(t(nrcVector[, 1:8]))
   sentimentDataframe <- data.frame(t(nrcVector[, 9:10]))
   
@@ -270,14 +278,13 @@ ggplottableSentimentFormat <- function(nrcVector) {
 }
 
 topicDocuments <- function(model, data, settings) {
-  topicProportions <- round(colSums(model$theta), 0)
-
   documentList <- vector(mode = "list", length = model$settings$dim$K)
   
   for(i in 1:model$settings$dim$N) {
     index <- which.max(model$theta[i, ])
-    documentList[[index]] <- paste(documentList[[index]], data$meta$documents[[i]], sep = "\n\n")
+    documentList[[index]] <- c(documentList[[index]], as.character(data$meta$documents[[i]]))
   }
+  
   return(documentList)
 }
 
@@ -326,5 +333,20 @@ timeDifference <- function(start, end, iterationsLeft) {
   }
 
   return(text)
+}
+
+emptyNRCVector <- function() {
+  data.frame(
+    "anger" = NA,
+    "anticipation" = NA,
+    "disgust" = NA,
+    "fear" = NA,
+    "joy" = NA,
+    "sadness" = NA,
+    "surprise" = NA,
+    "trust" = NA,
+    "negative" = NA,
+    "positive" = NA
+  )
 }
 
