@@ -372,7 +372,7 @@ analysisSummaryOutputFunction <- function(input, output, session, resultsr) {
     
     topicLabels <- labelTopics(model, n = clamp(PlotSettings$keyWords, 1, vocabularyLength))
     topic <- closePoints$topic
-    textOut <- keywordsTextFormat(topicLabels, topic)
+    textOut <- labelsTextFormat(topicLabels, topic)
     
     sentiment <- "No sentiment"
     if(!is.na(closePoints$sentiment)) {

@@ -286,7 +286,7 @@ syuzhetLanguage <- function(language) {
 }
 
 topicDistances <- function(topicTerms) {
-  # Rewritten from LDA vis
+  # Rewritten from LDAvis
   distances <- proxy::dist(x = topicTerms, method = function(x, y) {
     m <- 0.5 * (x + y)
     lhs <- ifelse(x == 0, 0, x * (log(x) - log(m)))
@@ -327,3 +327,4 @@ timeDifference <- function(start, end, iterationsLeft) {
 
   return(text)
 }
+

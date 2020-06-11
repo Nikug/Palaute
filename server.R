@@ -8,7 +8,10 @@ Packages <- c("dplyr",
               "Rtsne",
               "corpus",
               "scales",
-              "readr")
+              "readr",
+              "shinythemes",
+              "tm",
+              "SnowballC")
 
 lapply(Packages, library, character.only = TRUE)
 

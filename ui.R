@@ -13,6 +13,7 @@ source("modules/analysisDetailsOutput.R")
 # Scripts
 source("scripts/analysis.R")
 source("scripts/sentimentLexiconComparison.R")
+source("scripts/keywords.R")
 
 ui <- tagList(
   navbarPage(theme = shinytheme("cosmo"),

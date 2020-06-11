@@ -57,6 +57,14 @@ analysisDetailsOutput <- function(id) {
 }
 
 analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
+  keywordsr <- reactive({
+    validate(need(resultsr, message = FALSE))
+    
+    results <- resultsr()
+    keywords <- topicKeywords(results$model)
+    keywords
+  })
+  
   observeEvent(c(resultsr(), input$hideEmotions), {
     validate(
       need(resultsr(), message = FALSE)
@@ -98,14 +106,14 @@ analysisDetailsOutputFunction <- function(input, output, session, resultsr) {
       need(input$numberOfKeywords <= DetailSettings$maxKeywords & input$numberOfKeywords >= DetailSettings$minKeywords,
            message = "Invalid number of keywords")
     )
-    results <- resultsr()
-    model <- results$model
-    vocabularyLength <- length(model$vocab)
-    topicLabels <- labelTopics(model, n = clamp(input$numberOfKeywords, DetailSettings$minKeywords, vocabularyLength))
+    keywords <- keywordsr()
+    vocabularyLength <- length(keywords[[1]]$prob.value)
+    topics <- length(keywords)
     
-    lapply(1:model$settings$dim$K, function(topic) {
+    lapply(1:topics, function(topic) {
       outputKeywords <- paste0("keywords", topic)
-      textOut <- keywordsTextFormat(topicLabels, topic)
+      
+      textOut <- keywordsTextFormat(keywords, topic, input$numberOfKeywords)
       
       if(input$numberOfKeywords > vocabularyLength) {
         textOut <- tagList(textOut,
@@ -264,7 +272,7 @@ generateUI <- function(topic, model, sentiment, ns, input, hide) {
   return(ui)
 }
 
-keywordsTextFormat <- function(labels, topic) {
+labelsTextFormat <- function(labels, topic) {
   if("topics" %in% names(labels)) {
     ui <- tagList(
       tags$p(tags$strong("Topic words:"), paste(labels$topics[topic, ], collapse = " "))
@@ -279,6 +287,54 @@ keywordsTextFormat <- function(labels, topic) {
   }
   
   return(ui)
+}
+
+keywordsTextFormat <- function(keywords, topic, number = 5) {
+  maxWords <- length(keywords[[topic]]$prob.value)
+  words <- min(number, maxWords)
+
+  ui <- tagList(
+    tags$p(tags$strong("Most probable:"), keywordAsText(keyword = keywords[[topic]]$prob.word[1:words],
+                                                        value = keywords[[topic]]$prob.value[1:words],
+                                                        type = "prob")),
+    tags$p(tags$strong("Frex:"), keywordAsText(keyword = keywords[[topic]]$frex.word[1:words],
+                                               value = keywords[[topic]]$frex.value[1:words],
+                                               type = "frex")),
+    tags$p(tags$strong("Lift:"), keywordAsText(keyword = keywords[[topic]]$lift.word[1:words],
+                                               value = keywords[[topic]]$lift.value[1:words],
+                                               type = "lift")),
+    tags$p(tags$strong("Score:"), keywordAsText(keyword = keywords[[topic]]$score.word[1:words],
+                                                value = keywords[[topic]]$score.value[1:words],
+                                                type = "score"))
+  )
+  return(ui)
+}
+
+keywordAsText <- function(keyword, value, type) {
+  words <- length(value)
+  
+  switch(type,
+    prob = {
+      tagList(lapply(1:words, function(i) {
+        tags$span(tags$span(class="text-muted", paste0(round(exp(value[i]) * 100, 0), "%")), paste0(keyword[i], ifelse(i == words, "", ", ")))
+      }))
+    },
+    frex = {
+      tagList(lapply(1:words, function(i) {
+        tags$span(tags$span(class="text-muted", paste0(round(value[i] * 100, 0), "%")), paste0(keyword[i], ifelse(i == words, "", ", ")))
+      }))
+    },
+    lift = {
+      tagList(lapply(1:words, function(i) {
+        tags$span(tags$span(class="text-muted", paste0(round(value[i], 2))), paste0(keyword[i], ifelse(i == words, "", ", ")))
+      }))
+    },
+    score = {
+      tagList(lapply(1:words, function(i) {
+        tags$span(tags$span(class="text-muted", paste0(round(value[i], 2))), paste0(keyword[i], ifelse(i == words, "", ", ")))
+      }))
+    }
+  )
 }
 
 simpleSentimentBarPlot <- function(data, plotTitle = "Summary", plotSubtitle = "") {
