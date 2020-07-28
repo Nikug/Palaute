@@ -13,7 +13,7 @@ helpUI <- function(id) {
         br(),
         br(),
         tags$p("This artefact is part of a master's thesis. The thesis can be found from:"),
-        tags$a("A link to the thesis", href = "#"),
+        tags$a("A link to the thesis", href = "http://urn.fi/URN:NBN:fi-fe2020052238644"),
         br(),
         br(),
         tags$p("This software uses a combination of topic modeling and sentiment/emotion analysis in order to
