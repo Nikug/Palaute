@@ -15,6 +15,7 @@ shiny
 shinythemes
 dplyr
 stm
+tm
 syuzhet
 ggplot2
 proxy
@@ -23,6 +24,7 @@ Rtsne
 corpus
 scales
 readr
+SnowballC
 ```
 
 After installing the above packages, you should be able to run the application from the R-studio. Open the file `app.R` in R-studio and select `Run App`.
